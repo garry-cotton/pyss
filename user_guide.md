@@ -1,12 +1,61 @@
 
 
-## Run Configuration
+## General Usage
+
+The main role of the library is to provide a unified framework for easily computing a variety of statistical summaries of datasets. A number of summaries are available out of the box with pre-specified configurations, allowing a large number of results to be obtained from just a few lines of code. However, many users will require specialised results for their unique case, therefore the framework supports the addition of customised results. 
+
+We run through possible use cases of the library, increasing the flexibility and complexity required by the user as we progress.
+
+### Statistical Summaries
+
+A statistical summary is comprised of two steps, computation of a statistic and a subsequent summarisation step. In many cases, these two steps are independent of one another. For example, the covariance of a dataset yields a matrix, which we can then summarise in a variety of ways including extracting eigenvalues, matrix norms or the matrix determinant. Conversely, those same summaries can be applied to any other statistic yielding a matrix. Therefore, it is possible to perform many combinations between the two.
+
+In some cases, the statistic itself produces a scalar value, therefore performing the summary role as well. Examples include error statistics from model fits, 
+
+The library supports the following types of statistical summary:
+- Basic
+- Distance
+- Casual
+- Information Theory
+- Spectral
+- Wavelet
+- Miscellaneous
+
+These types serve to roughly group statistical summaries based on expected interest of the user. A full list of the statistics available can be found in the **Available Statistical Summaries** section later in the document. 
+
+### Standard Usage
+
+For many purposes, existing statistical summaries and pre-defined configurations are sufficient. The user can select summaries through a range of criteria as needed. In all cases, the configuration in question can be found by running the following code, which will return the configuration YAML:
+
+#### Specific Statistic
+
+A specific statistic can be selected and run 
+
+#### Statistic Type
+
+Simply specifying the type of statistical summary will compute all statistics over a pre-defined range of parameters.
+
+
+#### Statistic Theme
+
+## Advanced Concepts
+
+### Statistical Summaries
+
+### Run Configurations
 
 While instantiated statistics and summarisers can be passed to the `Calculator` class and utilised as is (with pre-defined parameters), when the parameterisation scheme becomes large it is more convenient to provide a configuration. This method is also required when utilising the distributed computing component.
 
-### General Structure
+Configuration can be provided in code or via a file. The required format contains one or both of the following components:
 
-Configuration can be provided in code or via a file. The format required will be similarly split into two sections: `Statistics` and `Summarisers`. Each statistic defined under the `Statistics` section must be unique, but summarisers defined under the `Summariser` section can appear multiple times. The hierarchy for defining the scheme is as follows:
+- A `Statistics` and `Summarisers` section.
+- A `SummaryStatistics` section.
+
+We consider each case in turn.
+
+#### Statistics and Summarisers
+
+Each *Statistic* defined under the `Statistics` section must be unique, but summarisers defined under the `Summariser` section can appear multiple times. The hierarchy for defining the scheme is as follows:
 
     Statistics
 	    1stStatisticName
@@ -35,7 +84,26 @@ Configuration can be provided in code or via a file. The format required will be
 
 Note: sectioned under `Constraints` you can find a reference to `Statistics`, which indicates that the structure within this section mirrors that of the `Statistics` section.
 
+#### SummaryStatistics
+
+This section essentially follows the same structure as the previous `Statistics` section: each *SummaryStatistic* added must be unique, different variants are defined via parameterisation:
+
+    SummaryStatistics
+	    1stStatisticName
+		   parameters
+	    2ndStatisticName
+		   parameters
+	    .
+	    .
+	    .
+	    nthStatisticName
+		   parameters
+
 We now provide specifications for each supported format. Later, we will provide a motivating example to illustrate the structure further.
+
+## Creating Custom Run Configurations
+
+For general information on the structure of *Run Configurations* please see the **Run Configurations** section above under **Advanced Concepts**. The following sections detail how that general structure is translated into supported configuration formats.
 
 ### YAML
 
@@ -108,7 +176,24 @@ Finally, the all-in-one summary statistics are configured under the `SummaryStat
 		kthSummaryStatisticName:
 			...
 
-### JSON File
+#### Running the Configuration
+
+Once the configuration YAML is created, it can be provided to the framework either by referencing the file path:
+
+    calc = Calculator(**calc_params)
+    path = "\...\my_config_file.yaml"
+    calc.set_yaml_configuration_path(path)
+    results = calc.compute()
+
+Or by via a variable, for example `run_yaml`, containing the YAML string:
+
+    calc = Calculator(**calc_params)
+    calc.set_yaml_configuration(run_yaml)
+    results = calc.compute()
+
+For most use cases, the path method will be sufficient. However, providing a variable containing YAML is convenient when building a run configuration programmatically.
+
+### JSON
 
 JSON files specify the configuration in a very similar fashion, albeit with the popular JSON format. While slightly longer than the YAML configuration, JSON has the advantage of being naturally comparable to the Python dictionary object
 
@@ -128,9 +213,32 @@ The general format for the `Statistics` object is as below
 #### Summarisers
 #### SummaryStatistics
 
+#### Running the Configuration
+
+Once the configuration JSON is created, it can be provided to the framework either by referencing the file path:
+
+    calc = Calculator(**calc_params)
+    path = "\...\my_config_file.json"
+    calc.set_json_configuration_path(path)
+    results = calc.compute()
+
+Or provided by an in-memory variable, for example `run_json`, which may be convenient if building the JSON programmatically:
+
+	calc = Calculator(**calc_params)
+    calc.set_json_configuration(run_json)
+    results = calc.compute()
+
 ### Dictionary Object
 
-An in-memory dictionary object can be provided instead. The required structure is identical to the **JSON** provided in the above section.
+An in-memory dictionary object can be provided instead. The required structure is identical to the **JSON** provided in the above section. In fact, the `set_json_configuration()` method above simply converts the JSON string into a Python dictionary.
+
+#### Running the Configuration
+
+For a dictionary `run_dict` containing the run configuration, the following code will execute the required run:
+
+    calc = Calculator(**calc_params)    
+    calc.set_dict_configuration(run_dict)
+    results = calc.compute()
 
 ### Motivating Example
 
@@ -152,10 +260,10 @@ We'll derive the following general statistics:
 
 Apply the following summaries to these statistics:
 
-- Summariser 3: MatrixDeterminant [Output: $5$-vector]
+- Summariser 1: MatrixDeterminant [Output: $5$-vector]
 	- Variants: Scaled
 	- Statistics: All Except 5
-- Summariser 4: Moments [Output: $6$-vector ($3$ moments for $2$ statistics)]
+- Summariser 2: Moments [Output: $6$-vector ($3$ moments for $2$ statistics)]
 	- Selection: First 3
 	- Statistics: 3, 5
 
@@ -169,6 +277,8 @@ Total number of summary scalars: $13 + 2p$. Thus the output from this scheme wil
 
 #### YAML File
 
+Firstly, we create the YAML configuration file as below:
+
 	Statistics:
 	    EmpiricalCovariance:
 	    EllipticEnvelope:
@@ -179,25 +289,14 @@ Total number of summary scalars: $13 + 2p$. Thus the output from this scheme wil
 		    - transpose: False
 		    - transpose: True
 	    
-    Summaries:
-	    PCAVarianceExplained:
-		    Parameters:
-			    - first: 2
-	    PCALoadings:
-		    Parameters:
-			    - first: 2
-			Constraints:
-				EllipticEnvelope
-				PairwiseDistance
-				IGCI:
-					- transpose : False				
-		MatrixDeterminant:
+    Summarisers:			
+		- MatrixDeterminant:
 			Parameters:
 				- scaled: True
 			Constraints:
 				¬IGCI
 					-transpose: False
-		Moments:
+		- Moments:
 			Parameters:
 				- first: 3
 			Constraints:
@@ -205,10 +304,25 @@ Total number of summary scalars: $13 + 2p$. Thus the output from this scheme wil
 				IGCI:
 					- transpose: True
 
-**Important notes:**
-- The `Constraints` subsection under each summary, which limits the application of the summary to specific statistics. 
-- Specific parameterised statistic variants are referenced through the same structure present in the `Statistics` section.
-- The not sign `¬` is used in the `Constrants` section to indicate all except a particular statistic. This can be seen under the `MatrixDeterminant` summary constraints for `ICGI`.
+	SummaryStatistics:
+	    PCAVarianceExplained:
+		    Parameters:
+			    - first: 2
+	    PCALoadings:
+		    Parameters:
+			    - first: 2
+
+Next, we save the file as a simple text file at the path `C:\TestRuns\MyYamlConfiguration.yaml`.
+
+Finally, in Python, we execute the following code:
+
+    from pyspc import Calculator
+
+	calc = Calculator(**calc_params)
+	yaml_path = "C:/TestRuns/MyYamlConfiguration.yaml"
+	calc.set_yaml_configuration_path(yaml_path)
+	result = calc.compute()	
+
 
 #### JSON File
 
@@ -227,22 +341,7 @@ Total number of summary scalars: $13 + 2p$. Thus the output from this scheme wil
 			]
 		},
 	    
-	    "Summaries": {
-		    "PCAVarianceExplained": {
-			    "Parameters": [
-					{"first": 2}
-				]
-			},
-		    "PCALoadings": {
-			    "Parameters" : [
-					{"first": 2}
-				],
-				"Constraints" : {
-					"EllipticEnvelope" : [],
-					"PairwiseDistance" : [],
-					"IGCI" : [{"transpose" : false}]
-				}
-			},
+	    "Summaries": {		    
 			"MatrixDeterminant": {
 				"Parameters" : [
 					{"scaled": true}
@@ -264,27 +363,43 @@ Total number of summary scalars: $13 + 2p$. Thus the output from this scheme wil
 					]					
 				}
 			}
+		},
+
+		"SummaryStatistics":
+			"PCAVarianceExplained": {
+			    "Parameters": [
+					{"first": 2}
+				]
+			},
+		    "PCALoadings": {
+			    "Parameters" : [
+					{"first": 2}
+				]
+			}
 		}
 	}
 
-**Important notes:**
-- The `Constraints` subsection under each summary, which limits the application of the summary to specific statistics. 
-- Specific parameterised statistic variants are referenced through the same structure present in the `Statistics` section.
+
+#### Important Notes
+
+- The `Constraints` subsection under each Summariser limits the application of the Summariser to specific Statistics. 
+- Specific parameterised statistic variants are referenced through the same structure present in the `Statistics` section. 
+- If no parameters are specified for a Statistic in the `Constraints` section, this is treated as the entire configuration for that Statistic.
 - The not sign `¬` is used in the `Constrants` section to indicate all except a particular statistic. This can be seen under the `MatrixDeterminant` summary constraints for `ICGI`.
 
 
 
-## Defining Custom Statistics and Summarizers
+## Defining Custom Statistics and Summarisers
 
-Two ways of defining a defining statistic can be supported. Some summaries are general and can be applied to any statistic, for example the first $n$ eigenvalues of highest modulus can be taken from any statistic with sufficient dimensionality. In other cases, a summary will be very specifically tied to the statistic.
+In line with the statistical summary flow described in the **Section** section, there two ways of defining the *Statistic* and *Summariser* combination: some *Statistics* and *Summarisers* are independent of one another,  In other cases, a Statistic and Summariser will be very specifically tied together, in which case we define them as a single entity.
 
 ### Generalised Flow:
 
-In this case, either a custom statistic is defined or a summary (or both!), there need not be any link between them. In either case, the defined object must inherit from the applicable *pyspc* base object.
+In this case, either a custom Statistic is defined or a Summariser (or both!), there need not be any link between them. In either case, the defined object must inherit from the applicable *pyspc* base object.
 
 #### Statistic
 
-The custom statistic inherits from the base `Statistic` class and **must** implement the `compute()` method, returning a numpy array (type `np.ndarray`):
+The custom *Statistic* inherits from the base `Statistic` class and **must** implement the `compute()` method, returning a numpy array (type `np.ndarray`):
 
     from pyspc import Statistic
     
@@ -299,7 +414,7 @@ The custom statistic inherits from the base `Statistic` class and **must** imple
 
 #### Summarizer
 
-Similarly, the custom statistic class, the custom summarizer inherits from the base `Summariser` class and **must** implement the `summarise()` method, returning a numpy array (type `np.ndarray`):
+Similar to the custom *Statistic* class, the custom *Summariser* inherits from the base `Summariser` class and **must** implement the `summarise()` method, returning a numpy array (type `np.ndarray`):
 
     from pyspc import Summariser
     
@@ -314,7 +429,7 @@ Similarly, the custom statistic class, the custom summarizer inherits from the b
 
 ### All in One:
 
-For statistics and summaries that need to be paired together specifically, an all in one class can be used instead which performs both the statistic computation and summary in one shot. The custom object inherits from the base `SummaryStatistic` class and **must* implement the `summarise()` method, returning a numpy array (type `np.ndarray`):
+For *Statistics* and *Summarisers* that need to be paired together specifically, an all in one class called *SummaryStatistic* can be used instead which performs both the statistic computation and summarisation in one shot. The custom object inherits from the base `SummaryStatistic` class and **must* implement the `summarise()` method, returning a numpy array (type `np.ndarray`):
 
     from pyspc import SummaryStatistic
     
@@ -336,7 +451,7 @@ For statistics and summaries that need to be paired together specifically, an al
 			... implemented code ...
 			return np.ndarray
 			
-The main distinction from the **Generalised Flow** is that a `SummaryStatistic` is self contained and will not be subjected to summarisation from other registered `Summariser` objects by the `Calculator` class.
+The main distinction from the **Generalised Flow** is that a *SummaryStatistic* is self contained and will not be subjected to summarisation from other registered *Summariser* objects by the *Calculator* class.
 
 ### Registering Custom Objects
 
