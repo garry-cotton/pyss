@@ -35,53 +35,15 @@ Configuration can be provided in code or via a file. The format required will be
 
 Note: sectioned under `Constraints` you can find a reference to `Statistics`, which indicates that the structure within this section mirrors that of the `Statistics` section.
 
-We now provide specifications for each supported format. Additionally, we provide a motivating example to illustrate the structure.
-
-### Motivating Example
-
-For the following examples we will use the run configuration as below applied to an $n \times p$ dataset:
-
----
-<u>Run Configuration</u>
-
-- Statistic 1: EmpiricalCovariance [Output: $p \times p$ matrix]
-- Statistic 2: EllipticEnvelope [Output: $p \times p$ matrix]
-	- Variant: Squared
-- Statistic 3: PairwiseDistance [Output: $n \times n$ matrix]
-	- Variant: Euclidean
-- Statistic 4: InformationGeometricConditionalIndependence (ICGI) - [Output: $p \times p$ matrix]
-	- Variant: Variables
-- Statistic 5: InformationGeometricConditionalIndependence (ICGI) - [Output: $n \times n$ matrix]
-	- Variant: Observations
-
-And apply the following summaries:
-
-- Summariser 1: PCAVarianceExplained [Output: $2$-vector]
-	- Selection: First 2
-	- Statistics: All
-- Summariser 2: PCALoadings; [Output: $6$-vector (2 loadings for 3 statistics)]
-	- Selection: First 2
-	- Statistics: 1, 2, 4
-- Summariser 3: MatrixDeterminant [Output: $5$-vector]
-	- Variants: Scaled
-	- Statistics: All Except 5
-- Summariser 4: Moments [Output: $6$-vector (3 moments for 2 statistics)]
-	- Selection: First 3
-	- Statistics: 3, 5
-
-Total summary scalars: $19$
-
----
-
-The output from this scheme will be a single row-wise $19$-vector as a numpy array. 
+We now provide specifications for each supported format. Later, we will provide a motivating example to illustrate the structure further.
 
 ### YAML
 
-The *pyspi* package upon which this library is based utilised YAML files to specify various configuration parameters. We have retained this use but simplified the required format. Run configuration now only requires information relevant to statistic selection and computation. Several pre-defined YAML configuration files will be available as part of the release that can be used directly or as a baseline for tailoring your own configuration.
+The *pyspi* package upon which this library is based utilised YAML files to specify various configuration parameters. We have retained this use but simplified the required format. Run configuration now only requires information relevant to statistic selection and computation. Several pre-defined YAML configuration files will be available as part of the release that can be used directly or as a baseline for tailoring your own configuration. YAML provides arguably the cleaning depiction of the required hierarchy.
 
-#### Specification
+#### Statistics
 
-Below is the general format for configuration in YAML. It provides arguably the cleaning depiction of the required hierarchy:
+Each statistic specified must have a unique name. Variations of the same statistic are specified by different parameterisation schemes. Under the statistic name, a `-` symbol declares the beginning of a new parameterisation, with each subsequent line defining a configured parameter and value.
 
     Statistics:
 	    1stStatisticName:
@@ -92,14 +54,14 @@ Below is the general format for configuration in YAML. It provides arguably the 
 			- parameter_1 : second_parameter_1_value
 			  parameter_2 : second_parameter_2_value
 			...
-			- parameter_1: nth_parameter_1_value
-			- parameter_2: nth_parameter_2_value
+			- parameter_1: mth_parameter_1_value
+			- parameter_2: mth_parameter_2_value
 		...
-		nthStatisticName:
+		ithStatisticName:
 			- parameter_1 : value
 			  parameter_2 : value
 	
-Each statistic specified must have a unique name. Variations of the same statistic are specified by different parameterisation schemes. Under the statistic name, a `-` symbol declares the beginning of a new parameterisation, with each subsequent line defining a configured parameter and value.
+#### Summarisers
 
 Summarisers are defined in a similar way, however there are some key differences as mentioned previously. Firstly, they provide an extra layer of configuration to support constraints on the statistics they're applied to in the run. Secondly, a single summariser can appear more than once unlike with statistics. This is to facilitate the possibility of constraining a certain variant of summariser to a certain variants of statistics:
 
@@ -124,14 +86,88 @@ Summarisers are defined in a similar way, however there are some key differences
 			- Parameters:
 				- parameter_1 : value
 		...
-		- pthSummariserName:
+		- jthSummariserName:
 			...
 
 As indicated in the **General Structure** section, the `Constraints` section of the `Summariser` configuration follows the same structure as in `Statistics`.
 
-#### Example Implementation
+#### Summary Statistics
 
-We specify this run configuration in YAML with the following scheme:
+Finally, the all-in-one summary statistics are configured under the `SummaryStatistic` section:
+
+    SummaryStatistics:
+		1stSummaryStatisticName:
+			- parameter_1 : value
+				  
+		2ndSummaryStatisticName
+			- parameter_1 : value
+			- parameter_2 : value
+			  ...
+			- parameter_p : value
+		...
+		kthSummaryStatisticName:
+			...
+
+### JSON File
+
+JSON files specify the configuration in a very similar fashion, albeit with the popular JSON format. While slightly longer than the YAML configuration, JSON has the advantage of being naturally comparable to the Python dictionary object
+
+#### Statistics
+
+The general format for the `Statistics` object is as below
+
+    {
+	    "Statistics" : {
+		    "1stStatisticName" : {
+		    }
+	    }
+	}
+
+
+
+#### Summarisers
+#### SummaryStatistics
+
+### Dictionary Object
+
+An in-memory dictionary object can be provided instead. The required structure is identical to the **JSON** provided in the above section.
+
+### Motivating Example
+
+To better describe the requirements for the run configuration, we'll provide an example applied to an $n \times p$ dataset:
+
+#### Run Configuration
+
+We'll derive the following general statistics:
+
+- Statistic 1: EmpiricalCovariance [Output: $p \times p$ matrix]
+- Statistic 2: EllipticEnvelope [Output: $p \times p$ matrix]
+	- Variant: Squared
+- Statistic 3: PairwiseDistance [Output: $n \times n$ matrix]
+	- Variant: Euclidean
+- Statistic 4: InformationGeometricConditionalIndependence (ICGI) - [Output: $p \times p$ matrix]
+	- Variant: Variables
+- Statistic 5: InformationGeometricConditionalIndependence (ICGI) - [Output: $n \times n$ matrix]
+	- Variant: Observations
+
+Apply the following summaries to these statistics:
+
+- Summariser 3: MatrixDeterminant [Output: $5$-vector]
+	- Variants: Scaled
+	- Statistics: All Except 5
+- Summariser 4: Moments [Output: $6$-vector ($3$ moments for $2$ statistics)]
+	- Selection: First 3
+	- Statistics: 3, 5
+
+And finally include the following fully defined summary statistics:
+- SummaryStatistic 1: PCAVarianceExplained [Output: $2$-vector]
+	- Selection: First 2
+- SummaryStatistic 2: PCALoadings; [Output: $2p$-vector ($2$ loadings for $p$ variables)]
+	- Selection: First 2
+
+Total number of summary scalars: $13 + 2p$. Thus the output from this scheme will be a single row-wise $(13 + 2p)$-vector as a numpy array. 
+
+#### YAML File
 
 	Statistics:
 	    EmpiricalCovariance:
@@ -174,9 +210,7 @@ We specify this run configuration in YAML with the following scheme:
 - Specific parameterised statistic variants are referenced through the same structure present in the `Statistics` section.
 - The not sign `¬` is used in the `Constrants` section to indicate all except a particular statistic. This can be seen under the `MatrixDeterminant` summary constraints for `ICGI`.
 
-### JSON File
-
-JSON files specify the configuration in a very similar fashion, albeit with the popular JSON format. The same configuration is specified as below:
+#### JSON File
 
     {
 	    "Statistics" : {
@@ -238,11 +272,7 @@ JSON files specify the configuration in a very similar fashion, albeit with the 
 - Specific parameterised statistic variants are referenced through the same structure present in the `Statistics` section.
 - The not sign `¬` is used in the `Constrants` section to indicate all except a particular statistic. This can be seen under the `MatrixDeterminant` summary constraints for `ICGI`.
 
-While slightly longer than the YAML configration, JSON has the advantage of being naturally comparable to the Python dictionary object
 
-### Dictionary Object
-
-An in-memory dictionary object can be provided instead. The required structure is identical to the **JSON** provided in the above section.
 
 ## Defining Custom Statistics and Summarizers
 
