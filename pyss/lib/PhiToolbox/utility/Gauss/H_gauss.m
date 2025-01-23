@@ -4,7 +4,7 @@ function H = H_gauss(Cov_X)
 % PURPOSE: calculate entropy under the gaussian assumption
 % 
 % INPUTS:
-%           Cov_X: covariance of data X
+%           Cov_X: covariance of dataset X
 %
 % OUTPUT:
 %           H: entropy of X

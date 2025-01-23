@@ -19,9 +19,9 @@ function phi = phi_comp_probs(type_of_dist, type_of_phi, Z, probs, options)
 %           probs: probability distributions for computing phi
 %           
 %           In the Gaussian case
-%               probs.Cov_X: covariance of data X (past, t-tau)
+%               probs.Cov_X: covariance of dataset X (past, t-tau)
 %               probs.Cov_XY: cross-covariance of X (past, t-tau) and Y (present, t)
-%               probs.Cov_Y: covariance of data Y (present, t)
+%               probs.Cov_Y: covariance of dataset Y (present, t)
 %           In the discrete case
 %               probs.past: probability distribution of past state (X^t-tau)
 %               probs.joint: joint distribution of X^t (present) and X^(t-\tau) (past)

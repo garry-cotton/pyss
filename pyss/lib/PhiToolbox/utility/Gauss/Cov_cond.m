@@ -1,7 +1,7 @@
 function Cov_X_Y = Cov_cond(Cov_X,Cov_XY,Cov_Y)
 %% compute the partial covariance of X given Y
 % Input
-% Cov_X, Cov_Y: covariance of data X and Y
+% Cov_X, Cov_Y: covariance of dataset X and Y
 % Cov_XY: cross covariance of X and Y
 
 % Output

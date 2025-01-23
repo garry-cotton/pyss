@@ -1,8 +1,8 @@
 function phi = phi_comp(X, Z, params, options)
-% Compute phi from time series data
+% Compute phi from time series dataset
 %
 % INPUTS:
-%           X: time series data in the form (units X time)
+%           X: time series dataset in the form (units X time)
 %           Z: partition
 %         - 1 by n matrix. Each element indicates the group number. 
 %         - Ex.1:  (1:n) (atomic partition)
@@ -10,7 +10,7 @@ function phi = phi_comp(X, Z, params, options)
 %         - Ex.3:  [3, 1, K, 2, 2, ..., K, 2] (Groups don't have to be sorted in ascending order)
 %           params: parameters used for estimating probability distributions
 %           (covariances in the case of Gaussian distribution) from time
-%           series data
+%           series dataset
 %
 %           params.tau: time lag between past and present states
 %           params.number_of_states: number of states (only for the discrete case)

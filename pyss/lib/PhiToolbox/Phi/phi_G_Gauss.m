@@ -4,9 +4,9 @@ function [ phi_G, Cov_E_p, A_p ] = phi_G_Gauss( Cov_X, Cov_XY, Cov_Y, Z, method,
 % http://www.pnas.org/content/113/51/14817.full
 % 
 % INPUTS:
-%     Cov_X: covariance of data X (past, t-tau). n by n matrix (n is the number of variables).
+%     Cov_X: covariance of dataset X (past, t-tau). n by n matrix (n is the number of variables).
 %     Cov_XY: cross-covariance of X (past, t-tau) and Y (present, t).
-%     Cov_Y: covariance of data Y (present, t)
+%     Cov_Y: covariance of dataset Y (present, t)
 %     Z: partition
 %         - 1 by n matrix. Each element value indicates the group number which the element belongs to.
 %         - Ex.1:  (1:n) (atomic partition) [default]

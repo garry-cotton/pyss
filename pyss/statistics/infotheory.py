@@ -1,15 +1,18 @@
 import jpype as jp
 import numpy as np
 from pyspi import utils
+
 try:
     from oct2py import octave, Struct
 except Exception:
     pass
+
 import copy
 import os
 import logging
 
 from pyspi.base import Undirected, Directed, Unsigned, parse_univariate, parse_bivariate
+from pyss.statistic import Statistic, PairwiseStatistic
 
 """
 Contains relevant dependence statistics from the information theory community.
@@ -23,7 +26,7 @@ Contains relevant dependence statistics from the information theory community.
 #     jp.startJVM(jp.getDefaultJVMPath(), "-ea", "-Djava.class.path=" + jarloc)
 
 
-class JIDTBase(Unsigned):
+class JIDTBase(PairwiseStatistic):
 
     # List of (currently) modifiable parameters
     _NNK_PROP_NAME = "k"
@@ -51,28 +54,31 @@ class JIDTBase(Unsigned):
         self._prop_k = prop_k
         self._dyn_corr_excl = dyn_corr_excl
         self._entropy_calc = self._getcalc("entropy")
+        self._calc = None
 
-        self.identifier = self.identifier + "_" + estimator
+        self.__identifier = self.identifier + "_" + estimator
         if estimator == "kraskov":
-            self.identifier = self.identifier + "_NN-{}".format(prop_k)
-            self.labels = self.labels + ["nonlinear"]
+            self.__identifier = self.identifier + "_NN-{}".format(prop_k)
+            self.__labels = self.labels + ["nonlinear"]
         elif estimator == "kernel":
-            self.identifier = self.identifier + "_W-{}".format(kernel_width)
-            self.labels = self.labels + ["nonlinear"]
+            self.__identifier = self.identifier + "_W-{}".format(kernel_width)
+            self.__labels = self.labels + ["nonlinear"]
         elif estimator == "symbolic":
             if not isinstance(self, TransferEntropy):
                 raise NotImplementedError(
                     "Symbolic estimator is only available for transfer entropy."
                 )
-            self.labels = self.labels + ["symbolic"]
+            self.__labels = self.labels + ["symbolic"]
             self._dyn_corr_excl = None
             return
         else:
-            self.labels = self.labels + ["linear"]
+            self.__labels = self.labels + ["linear"]
             self._dyn_corr_excl = None
 
         if self._dyn_corr_excl:
-            self.identifier = self.identifier + "_DCE"
+            self.__identifier = self.identifier + "_DCE"
+
+        super().__init__()
 
     def __getstate__(self):
         state = dict(self.__dict__)
@@ -111,11 +117,11 @@ class JIDTBase(Unsigned):
 
     def _getkey(self):
         if self._estimator == "kernel":
-            return (self._estimator, self._kernel_width)
+            return self._estimator, self._kernel_width
         elif self._estimator == "kraskov":
-            return (self._estimator, self._prop_k)
+            return self._estimator, self._prop_k
         else:
-            return (self._estimator,)
+            return self._estimator,
 
     def _getcalc(self, measure):
         if measure == "entropy":
@@ -237,7 +243,7 @@ class JIDTBase(Unsigned):
             )
 
 
-class JointEntropy(JIDTBase, Undirected):
+class JointEntropy(JIDTBase):
 
     name = "Joint entropy"
     identifier = "je"
@@ -247,7 +253,7 @@ class JointEntropy(JIDTBase, Undirected):
         super().__init__(**kwargs)
 
     @parse_bivariate
-    def bivariate(self, data, i=None, j=None):
+    def compute(self, data, i=None, j=None):
         return self._compute_joint_entropy(data, i=i, j=j)
 
 
@@ -295,7 +301,7 @@ class MutualInfo(JIDTBase, Undirected):
             return self._calc.computeAverageLocalOfObservations()
         except:
             logging.warning(
-                "MI calcs failed. Maybe check input data for Cholesky factorisation?"
+                "MI calcs failed. Maybe check input dataset for Cholesky factorisation?"
             )
             return np.nan
 
@@ -329,7 +335,7 @@ class TimeLaggedMutualInfo(JIDTBase, Directed):
             return self._calc.computeAverageLocalOfObservations()
         except:
             logging.warning(
-                "Time-lagged MI calcs failed. Maybe check input data for Cholesky factorisation?"
+                "Time-lagged MI calcs failed. Maybe check input dataset for Cholesky factorisation?"
             )
             return np.nan
 

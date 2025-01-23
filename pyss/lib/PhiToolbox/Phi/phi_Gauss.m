@@ -16,9 +16,9 @@ function phi = phi_Gauss( type_of_phi, Z, probs, options)
 %         - Not accept [1, 3], [1,2,4,2] (Group indices must be consecutive numbers from 1 to K) 
 %
 %     probs: probability distributions for computing phi
-%         probs.Cov_X: covariance of data X (past, t-tau)
+%         probs.Cov_X: covariance of dataset X (past, t-tau)
 %         probs.Cov_XY: cross-covariance of X (past, t-tau) and Y (present, t)
-%         probs.Cov_Y: covariance of data Y (present, t)
+%         probs.Cov_Y: covariance of dataset Y (present, t)
 % 
 %     options
 %         options.normalization: 

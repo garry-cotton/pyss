@@ -80,7 +80,7 @@ You can also join our email discussion group jidt-discuss at http://groups.googl
 
 Several sets of demonstration code are distributed with the toolkit:
 
- a. demos/AutoAnalyser -- a GUI tool to compute the information-theoretic measures on a chosen data set with the toolkit, and also automatically generate code in Java, Python and Matlab to show how to do this calculation with the toolkit. See description at https://github.com/jlizier/jidt/wiki/AutoAnalyser
+ a. demos/AutoAnalyser -- a GUI tool to compute the information-theoretic measures on a chosen dataset set with the toolkit, and also automatically generate code in Java, Python and Matlab to show how to do this calculation with the toolkit. See description at https://github.com/jlizier/jidt/wiki/AutoAnalyser
 
  b. demos/java -- basic examples on easily using the Java toolkit -- run these from the shell scripts in this directory -- see description at https://github.com/jlizier/jidt/wiki/SimpleJavaExamples
 
@@ -102,7 +102,7 @@ Several sets of demonstration code are distributed with the toolkit:
  
  f. demos/octave/DetectingInteractionLags -- demonstration of using the transfer entropy with source-destination lags; the demo is run under Octave or Matlab -- see description at https://github.com/jlizier/jidt/wiki/DetectingInteractionLags
 
- g. demos/java/InterregionalTransfer -- higher level example using collective transfer entropy to infer effective connections between "regions" of data -- see description at https://github.com/jlizier/jidt/wiki/InterregionalTransfer
+ g. demos/java/InterregionalTransfer -- higher level example using collective transfer entropy to infer effective connections between "regions" of dataset -- see description at https://github.com/jlizier/jidt/wiki/InterregionalTransfer
 
  h. demos/octave/NullDistributions --  investigating the correspondence between analytic and bootstrapped distributions for TE and MI under null hypotheses of no relationship; the demo is run under Octave or Matlab -- see description at https://github.com/jlizier/jidt/wiki/NullDistributions
 
@@ -158,7 +158,7 @@ v1.5 26/11/2018
 (after 753 commits recorded by github, repository as at https://github.com/jlizier/jidt/tree/603445651cc0bf155a42c9ba336141bc7f29bccd save for this file update)
 Added GPU (cuda) capability for KSG Conditional Mutual Information calculator (proper documentation to come), including unit tests and brief wiki page;
 Added auto-embedding for TE/AIS with multivariate KSG, and univariate and multivariate Gaussian estimator (plus unit tests), for Ragwitz criteria and Maximum bias-corrected AIS, and also added Maximum bias corrected AIS and TE to handle source embedding as well;
-Kozachenko entropy estimator adds noise to data by default;
+Kozachenko entropy estimator adds noise to dataset by default;
 Added bias-correction property to Gaussian and Kernel estimators for MI and conditional MI, including with surrogates (only option for kernel);
 Enabled use of different bases for different variables in MI discrete estimator;
 All new above features enabled in AutoAnalyser;
@@ -172,7 +172,7 @@ Major expansion of functionality for AutoAnalysers: adding Launcher applet and c
 Added GPU (cuda) capability for KSG Mutual Information calculator (proper documentation and wiki page to come), including unit tests;
 Added fast neighbour search implementations for mixed discrete-continuous KSG MI estimators;
 Expanded Gaussian estimator for multi-information (integration);
-Made all demo/data files readable by Matlab.
+Made all demo/dataset files readable by Matlab.
 
 
 v1.3.1 21/10/2016
@@ -198,7 +198,7 @@ v1.3 10/7/2015 at r691
 Added AutoAnalyser (Code Generator) GUI demo for MI and TE;
 Added auto-embedding capability via Ragwitz criteria for AIS and TE calculators (KSG estimators);
 Added Java demo 9 for showcasing use of Ragwitz auto-embedding;
-Adding small amount of noise to data in all KSG estimators now by default (may be disabled via setProperty());
+Adding small amount of noise to dataset in all KSG estimators now by default (may be disabled via setProperty());
 Added getProperty() methods for all conditional MI and TE calculators;
 Upgraded Python demos for Python 3 compatibility;
 Fixed bias correction on mixed discrete-continuous KSG calculators;
@@ -224,7 +224,7 @@ Added multi-threading (using all available processors by default) for the KSG es
 Added Predictive information / Excess entropy implementations for KSG, kernel and Gaussian estimators;
 Added R, Julia, and Clojure demos;
 Added Windows batch files for the Simple Java Demos;
-Added property for adding a small amount of noise to data in all KSG estimators;
+Added property for adding a small amount of noise to dataset in all KSG estimators;
 
 
 v1.0 14/8/2014 at r434
@@ -236,7 +236,7 @@ Renamed all discrete calculators to have Discrete suffix -- TE and conditional T
 Kraskov estimators now using 4 nearest neighbours by default;
 Unit test for Gaussian TE against ChaLearn Granger causality measurement;
 Added Schreiber TE demos; Interregional transfer demos; documentation for Interaction lag demos; added examples 7 and 8 to Simple Java demos;
-Added property to add noise to data for Kraskov MI;
+Added property to add noise to dataset for Kraskov MI;
 Added derivation of Apache Commons Math code for chi square distribution, and included relevant notices in our release;
 Inserted translation class for arrays between Octave and Java;
 Added analytic statistical significance calculation to Gaussian calculators and discrete TE;

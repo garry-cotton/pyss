@@ -1,13 +1,13 @@
 function probs = data_to_probs(X, params, options)
-% Compute probability distributions for time series data X
+% Compute probability distributions for time series dataset X
 %
 %-----------------------------------------------------------------------
 % INPUTS:
-%           X: time series data in the form (units X time)
+%           X: time series dataset in the form (units X time)
 %
 %           params: parameters used for estimating probability distributions
 %           (covariances in the case of Gaussian distribution) from time
-%           series data
+%           series dataset
 %
 %           params.tau: time lag between past and present states
 %           params.number_of_states: number of states (only for the discrete case)
@@ -28,11 +28,11 @@ function probs = data_to_probs(X, params, options)
 %
 %           In the Gaussian case
 %               When options.type_of_phi is 'MI1'
-%                  probs.Cov_X: covariance of data X
+%                  probs.Cov_X: covariance of dataset X
 %               When options.type_of_phi is NOT 'MI1'
-%                  probs.Cov_X: covariance of data X (past, t-tau)
+%                  probs.Cov_X: covariance of dataset X (past, t-tau)
 %                  probs.Cov_XY: cross-covariance of X (past, t-tau) and Y (present, t)
-%                  probs.Cov_Y: covariance of data Y (present, t)
+%                  probs.Cov_Y: covariance of dataset Y (present, t)
 %           In the discrete case
 %               When options.type_of_phi is 'MI1'
 %                  probs.past: probability distribution of past state (X^t-tau)

@@ -4,9 +4,9 @@ function [phi_star, I, beta_opt] = phi_star_Gauss(Cov_X,Cov_XY,Cov_Y,Z,beta_init
 % http://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1004654
 % 
 % INPUTS:   
-%           Cov_X: covariance of data X (PAST, t-tau)
+%           Cov_X: covariance of dataset X (PAST, t-tau)
 %           Cov_XY: cross-covariance of X (past, t-tau) and Y (present, t)
-%           Cov_Y: covariance of data Y (PRESENT, t)
+%           Cov_Y: covariance of dataset Y (PRESENT, t)
 %           Z: partition of each channel (default: atomic partition)
 %           beta_init: initial value of beta (default: beta_int=1)
 %           normalization: 
