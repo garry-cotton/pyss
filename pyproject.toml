@@ -12,7 +12,7 @@ maintainers = [
     {name = "Joshua B. Moore"},
     {email = "joshua.moore@sydney.edu.au"},
 ]
-description = "Library for pairwise analysis of time series data."
+description = "Library for pairwise analysis of time series dataset."
 readme = "README.md"
 license = {text = "GNU General Public License v3 (GPLv3)"}
 requires-python = ">=3.8"
