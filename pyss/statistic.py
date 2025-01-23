@@ -14,10 +14,16 @@ from pyss.base import Component
 class Statistic(Component, ABC):
 
     """
-    Statistic for a static dataset (n x p).
+    Base abstract Statistic class intended for computing a statistic from an entire static dataset (n x p).
+    Provides a square matrix (p x p) output subject to further processing by applicable Reducers.
+
+    Required Properties:
+        name (string): Readable name of the statistic.
+        identifier (string): A simpler and minimalist identifier for the statistic.
+        labels (list[str]): A list of labels to describe the type of statistic.
 
     Contracts:
-        - Input: n x p dataset; Output: p x p matrix.
+        - Input: (n x p) -> Output: (p x p)
     """
 
     def __init__(self):
@@ -58,10 +64,10 @@ class Statistic(Component, ABC):
 class DynamicStatistic(Statistic, ABC):
 
     """
-    Statistic for a static dataset (n x p) and a time series dataset (n x p x t).
+    Abstract Statistic class for computing dynamic statistics from a time series dataset (n x p x t).
+    Provides a dynamic square matrix (p x p x t) output subject to further processing by applicable Reducers.
 
     Contracts:
-        - Input: (n x p) -> Output: (p x p)
         - Input: (n x p x t) -> Output: (p x p x t)
     """
 
@@ -88,8 +94,12 @@ class DynamicStatistic(Statistic, ABC):
 class PairwiseStatistic(Statistic):
 
     """
-    Statistic that applies pairwise comparisons. Comparisons can be made between observations,
-    variables or time processes based on instantiation arguments. Additionally, data can be ordered if required.
+    Abstract Statistic class for computing pairwise comparisons. Comparisons can be made between observations,
+    variables or time processes based on instantiation arguments.
+
+    Data can be ordered if required.
+
+    Provides a square matrix (p x p, n x n, t x t) output subject to further processing by applicable Reducers.
 
     IMPORTANT NOTE: Pairwise statistics for time processes are incompatible with dynamic statistics. The former
     provides a statistic across ALL time points whereas the latter provides a statistic for EACH time point.
@@ -99,7 +109,7 @@ class PairwiseStatistic(Statistic):
             For example, if pairwise_dim="n", computation is applied to all possible observation pairings,
             resulting in n^2 comparisons and an n x n matrix result.
 
-        is_ordered (boolean): Declares whether the statistic requires ordinal data (ie: the Wilcoxon signed_rank test).
+        is_ordered (boolean): Declares whether the statistic requires ordered data (ie: the Wilcoxon signed_rank test).
             If False, computation is performed on the data as is.
             If True, the data along the pairwise_dim axis is ordered first before computation.
 
@@ -170,6 +180,13 @@ class PairwiseStatistic(Statistic):
 
 
 class ReducedStatistic(Statistic, ABC):
+
+    """
+    Abstract Statistic class for computing a fully reduced statistical output, acting as both a Statistic and
+    Reducer in a single operation.
+
+    Output is NOT subject to further processing by applicable Reducers and only flattened, if required.
+    """
 
     def calculate(self, data: np.ndarray) -> np.ndarray:
         result = super().calculate(data)

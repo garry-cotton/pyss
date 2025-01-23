@@ -17,11 +17,9 @@ from pyss.statistic import Statistic, ReducedStatistic
 class Calculator:
     """Compute all pairwise interactions.
 
-    The calculator takes in a multivariate dataset, computes and stores all selected statistical summaries.
-    Statistical summaries selected can be configured via:
-    - a YAML configuration file.
-    - a JSON configuration file.
-    - an in-memory dict object.
+    The calculator takes in a dataset, computes and stores all selected statistical summaries based on a configuration.
+
+    Configurations are provided using the Config class.
 
     Example:
          import numpy as np

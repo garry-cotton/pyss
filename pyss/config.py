@@ -20,6 +20,23 @@ from pyss.reducer import Reducer
 
 class Config:
 
+    """
+    Provides a construct for run configurations.
+
+    Existing configurations can be imported via:
+        - a YAML configuration file.
+        - a JSON configuration file.
+        - an in-memory dict object.
+
+    Configurations can be modified or new configurations constructed using provided methods.
+
+    Current configuration state can be exported to YAML or JSON files for later use.
+
+    Arguments:
+        name (string): Unique name for the configuration. This allows a single Calculator class to serve
+        multiple configurations.
+    """
+
     TICK_CHAR = u'\u2714'
     CROSS_CHAR = u'\u2716'
 
@@ -28,6 +45,7 @@ class Config:
     __available_dependencies = get_available_optional_deps()
 
     def __init__(self, name: str):
+
         self.__name = name
         self.__config_dict = dict()
         self.__config_scheme = {
