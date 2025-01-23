@@ -64,7 +64,7 @@ class Statistic(Component, ABC):
 class DynamicStatistic(Statistic, ABC):
 
     """
-    Abstract Statistic class for computing dynamic statistics from a time series dataset (n x p x t).
+    Abstract Statistic class intended for computing dynamic statistics from an entire time series dataset (n x p x t).
     Provides a dynamic square matrix (p x p x t) output subject to further processing by applicable Reducers.
 
     Contracts:
@@ -94,8 +94,10 @@ class DynamicStatistic(Statistic, ABC):
 class PairwiseStatistic(Statistic):
 
     """
-    Abstract Statistic class for computing pairwise comparisons. Comparisons can be made between observations,
-    variables or time processes based on instantiation arguments.
+    Abstract Statistic class intended for computing statistics from pairwise comparisons over a static dataset (n x p)
+    or time series dataset (n x p x t).
+
+    Comparisons can be made between observations, variables or time processes based on instantiation arguments.
 
     Data can be ordered if required.
 
