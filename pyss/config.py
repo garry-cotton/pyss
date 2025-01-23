@@ -2,13 +2,12 @@ from __future__ import annotations
 
 import yaml
 import warnings
-import io
 import os
 import re
 import inspect
 import importlib
 
-from typing import Union, Iterable
+from typing import Union, Iterable, cast
 from types import ModuleType
 from runpy import run_path
 from argparse import Namespace
@@ -37,8 +36,8 @@ class Config:
         multiple configurations.
     """
 
-    TICK_CHAR = u'\u2714'
-    CROSS_CHAR = u'\u2716'
+    __TICK_CHAR = u'\u2714'
+    __CROSS_CHAR = u'\u2716'
 
     __cached_modules = dict()
     __cached_module_classes = dict()
@@ -49,7 +48,7 @@ class Config:
         self.__name = name
         self.__config_dict = dict()
         self.__config_scheme = {
-            "Statistic" : dict(),
+            "Statistic": dict(),
             "Reducer": dict()
         }
         self.__reducer_filters = dict()
@@ -62,51 +61,69 @@ class Config:
 
     @property
     def name(self) -> str:
+        """
+        Unique name of the configuration.
+        """
         return self.__name
 
+    @property
     def scheme(self):
+        """
+        A Python dictionary representation of the configuration scheme.
+        """
         return self.__config_scheme
 
     @property
     def statistics(self) -> dict:
+        """
+        A Python dictionary representation of the Statistics configuration.
+        """
         return self.__config_scheme.get("Statistic")
 
     @property
     def reducers(self) -> dict:
+        """
+        A Python dictionary representation of the Reducers configuration.
+        """
         return self.__config_scheme.get("Reducer")
 
     def get_reducer_filters(self, reducer: Reducer) -> dict:
+        """
+        Filters for Statistics that a given Reducer is applied to.
+        """
         return self.__reducer_filters.get(reducer)
 
     @classmethod
-    def from_yaml(cls, name: str, yaml: str):
+    def from_yaml(cls, name: str, yaml_string: str):
+        """
+        Creates and returns a new Config object from the provided YAML string.
+        """
         instance = cls(name)
         print("Registering YAML string.")
-        instance.__config_dict = cls.__load_yaml(yaml)
+        instance.__config_dict = yaml.load(yaml_string, Loader=yaml.FullLoader)
         instance.__process_config_file()
         return instance
 
     @classmethod
     def from_yaml_file(cls, name: str, yaml_file_path: str):
+        """
+        Creates and returns a new Config object from a YAML file.
+        """
         instance = cls(name)
         print("Registering YAML configuration file: {}.".format(yaml_file_path))
-        instance.__config_dict = cls.__load_yaml_file(yaml_file_path)
+
+        with open(yaml_file_path) as yaml_io:
+            config_dict = yaml.load(yaml_io, Loader=yaml.FullLoader)
+
+        instance.__config_dict = config_dict
         instance.__process_config_file()
         return instance
 
     @classmethod
-    def __load_yaml_file(cls, yaml_path: str) -> dict:
-        # Load file and pass text stream to load method
-        with open(yaml_path) as f:
-            return cls.__load_yaml(f)
-
-    @staticmethod
-    def __load_yaml(yaml_stream: Union[io.TextIOWrapper, str]) -> dict:
-        # Parse yaml as dict object
-        return yaml.load(yaml_stream, Loader=yaml.FullLoader)
-
-    @classmethod
     def from_dict(cls, name: str, config_dict: dict):
+        """
+        Creates and returns a new Config object from a Python dictionary.
+        """
         instance = cls(name)
         print("Registering configuration dictionary object.")
         instance.__config_dict = config_dict
@@ -115,6 +132,9 @@ class Config:
 
     @classmethod
     def from_json_file(cls, name: str, json_file_path: str):
+        """
+        Creates and returns a new Config object from a JSON file.
+        """
         instance = cls(name)
         print("Registering YAML configuration file: {}.".format(json_file_path))
         instance.__config_dict = cls.__load_json_file(json_file_path)
@@ -124,24 +144,97 @@ class Config:
     @classmethod
     def __load_json_file(cls, json_path: str) -> dict:
         # Load file and pass text stream to load method
-        with open(json_path) as f:
-            return cls.__load_yaml(f)
+        pass
 
     def add_statistic(self,
                       statistic: Statistic,
                       scheme_name: str):
+        """
+        Adds a new Statistic to the configuration.
+        """
 
         self.__add_component(statistic, Statistic, scheme_name)
+
+    def add_statistic_by_name(self,
+                              module_reference: str,
+                              statistic_name: str,
+                              statistic_params: dict,
+                              scheme_name: str,
+                              refresh_module: bool = False):
+        """
+        Adds a new Statistic to the configuration based on the specified name and configuration parameters.
+        """
+
+        component = self.__get_component_by_name(module_reference,
+                                                 Statistic,
+                                                 statistic_name,
+                                                 statistic_params,
+                                                 scheme_name,
+                                                 refresh_module)
+        statistic = cast(Statistic, component)
+        self.add_statistic(statistic, scheme_name)
 
     def add_reducer(self,
                     reducer: Reducer,
                     scheme_name: str,
-                    statistics: Union[None, str, Iterable[str]] = None):
+                    applicable_statistic_names: Union[None, str, Iterable[str]] = None):
+        """
+        Adds a new Reducer to the configuration.
+        """
 
         self.__add_component(reducer, Reducer, scheme_name)
 
-        if statistics:
-            self.__add_reducer_statistic_filters(reducer, statistics)
+        if applicable_statistic_names:
+            self.__add_reducer_statistic_filters(reducer, applicable_statistic_names)
+
+    def add_reducer_by_name(self,
+                            module_reference: str,
+                            reducer_name: str,
+                            reducer_params: dict,
+                            scheme_name: str,
+                            applicable_statistic_names: Union[None, str, Iterable[str]] = None,
+                            refresh_module: bool = False):
+        """
+        Adds a new Reducer to the configuration based on the specified name and configuration parameters.
+        """
+
+        component = self.__get_component_by_name(module_reference,
+                                                 Reducer,
+                                                 reducer_name,
+                                                 reducer_params,
+                                                 scheme_name,
+                                                 refresh_module)
+        reducer = cast(Reducer, component)
+        self.add_reducer(reducer, scheme_name, applicable_statistic_names)
+
+    def __get_component_by_name(self,
+                                module_reference: str,
+                                component_archetype: type,
+                                component_name: str,
+                                component_params: dict,
+                                scheme_name: str,
+                                refresh_module: bool = False) -> Component:
+
+        module = self.__get_module(module_reference, refresh_module=refresh_module)
+
+        if not module:
+            raise ValueError(f"The module {module_reference} specified could not be found.\n"
+                             "- If a module name was specified, please check if the module is accessible from "
+                             "your current environment.\n"
+                             "- If a relative path was specified, check the path is valid from the current working "
+                             "directory (os.getcwd()).\n"
+                             "- If an absolute path was specified, check the file exists and is a valid python module.")
+
+        component_archetype_name = component_archetype.__name__
+        statistic_class = self.__get_component_class(Statistic, component_name, component_params, module)
+
+        component = self.__instantiate_component(module_reference,
+                                                 component_name,
+                                                 component_archetype_name,
+                                                 statistic_class,
+                                                 scheme_name,
+                                                 component_params)
+        return component
 
     def remove_statistic(self, statistic: Statistic):
         self.__remove_component(statistic, Statistic)
@@ -185,7 +278,7 @@ class Config:
             raise ValueError(f"{component_archetype_name} {full_instance_name} already exists.")
 
         self.__config_scheme[component_archetype_name][full_instance_name] = component
-        print(f"  {self.TICK_CHAR} {component_archetype_name} {component_type_name} scheme '{scheme_name}' "
+        print(f"  {self.__TICK_CHAR} {component_archetype_name} {component_type_name} scheme '{scheme_name}' "
               f"added successfully.")
 
     def __remove_component(self,
@@ -211,6 +304,7 @@ class Config:
         full_instance_name = self.__get_full_instantiated_name(module_reference,
                                                                component_type_name,
                                                                scheme_name)
+
         result = self.__config_scheme[component_archetype_name].pop(full_instance_name, None)
 
         if result:
@@ -220,7 +314,6 @@ class Config:
                   f"removed successfully.")
             return result
 
-    # TODO: Create yaml export function for the loaded configuration.
     def get_yaml(self):
         statistics = self.statistics.values()
 
@@ -330,7 +423,7 @@ class Config:
         for reducer, scheme_name, reducer_params in reducers_generator:
             self.__add_component(reducer, Reducer, scheme_name)
             statistics = reducer_params.get("Statistics")
-            self.__add_reducer_statistic_filters(reducer, reducer_params)
+            self.__add_reducer_statistic_filters(reducer, statistics)
 
     def __yield_instantiated_components(self,
                                         component_archetype: type,
@@ -387,27 +480,44 @@ class Config:
                                custom_error_msg=f"Incorrect format for {component_archetype_name} {component_name} "
                                                 f"'schemes' definition under module {module_reference}.")
 
-                    # Get component class init argument specification
-                    args = get_obj_init_args(component_class)
-                    missing_args = list()
-
-                    # Check all required arguments are provided in the configuration
-                    for arg, default in args.items():
-                        if arg not in scheme_args and default is None:
-                            missing_args.append(arg)
-
-                    # If required arguments are missing, throw error.
-                    if missing_args:
-                        raise ValueError(f"{component_archetype_name} {component_name} configuration '{scheme_name}' "
-                                         + f"under module '{module_reference}' is missing the arguments:"
-                                         + f"\n\t"
-                                         + "\n\t".join(missing_args))
-
-                    # Instantiate the component class with configured arguments.
-                    component: Component = component_class(**scheme_args)
+                    # Instantiate the component
+                    component = self.__instantiate_component(module_reference,
+                                                             component_name,
+                                                             component_archetype_name,
+                                                             component_class,
+                                                             scheme_name,
+                                                             scheme_args)
 
                     # Return the component instance, scheme name and parameters.
                     yield component, scheme_name, component_params
+
+    @staticmethod
+    def __instantiate_component(module_reference: str,
+                                component_name: str,
+                                component_archetype_name: str,
+                                component_class: type,
+                                scheme_name: str,
+                                scheme_args: dict) -> Component:
+
+        # Get required constructor arguments
+        args = get_obj_init_args(component_class)
+        missing_args = list()
+
+        # Check all required arguments are provided in the configuration
+        for arg, default in args.items():
+            if arg not in scheme_args and default is None:
+                missing_args.append(arg)
+
+        # If required arguments are missing, throw error.
+        if missing_args:
+            raise ValueError(f"{component_archetype_name} {component_name} configuration '{scheme_name}' "
+                             + f"under module '{module_reference}' is missing the arguments:"
+                             + f"\n\t"
+                             + "\n\t".join(missing_args))
+
+        # Instantiate the component class with configured arguments.
+        component: Component = component_class(**scheme_args)
+        return component
 
     def __add_reducer_statistic_filters(self,
                                         reducer: Reducer,
@@ -452,13 +562,13 @@ class Config:
         module = cls.__cached_modules.get(module_reference)
 
         if module:
-            print(f"  {cls.TICK_CHAR} Module {module_reference} already loaded.")
+            print(f"  {cls.__TICK_CHAR} Module {module_reference} already loaded.")
             return module
 
         # Check package modules.
         try:
             module = importlib.import_module(module_reference)
-            print(f"  {cls.TICK_CHAR} Module {module_reference} loaded successfully.")
+            print(f"  {cls.__TICK_CHAR} Module {module_reference} loaded successfully.")
             return module
         except ModuleNotFoundError:
             pass
@@ -469,7 +579,7 @@ class Config:
         module = global_modules.get(module_reference)
 
         if module:
-            print(f"  {cls.TICK_CHAR} Module {module_reference} loaded from global environment.")
+            print(f"  {cls.__TICK_CHAR} Module {module_reference} loaded from global environment.")
             return module
 
         # Check module files.
@@ -505,12 +615,12 @@ class Config:
 
     @classmethod
     def __get_component_class(cls,
-                              component_type: type,
+                              component_archetype: type,
                               component_name: str,
                               component_params: dict,
                               module: Union[Namespace, ModuleType]) -> Union[None, type]:
 
-        component_type_name = component_type.__name__
+        component_type_name = component_archetype.__name__
         module_name = cls.__get_module_name(module)
         full_component_name = cls.__get_full_component_name(module_name, component_name)
 
@@ -528,16 +638,16 @@ class Config:
 
         # Skip if not present.
         if not is_component_exists:
-            print(f"  {cls.CROSS_CHAR} {component_type_name} {component_name} could not be found. Skipping.")
+            print(f"  {cls.__CROSS_CHAR} {component_type_name} {component_name} could not be found. Skipping.")
             return
 
         # Get object from module
         component_class = getattr(module, component_name)
 
         # Check object is the expected type
-        if not issubclass(component_class, component_type):
+        if not issubclass(component_class, component_archetype):
             type_name = component_class.__name__
-            print(f"  {cls.CROSS_CHAR} {component_type_name} {component_name} is of type {type_name} which "
+            print(f"  {cls.__CROSS_CHAR} {component_type_name} {component_name} is of type {type_name} which "
                   f"is not a {component_type_name} object. Skipping.")
             return
 
@@ -551,7 +661,7 @@ class Config:
 
             if missing_dependencies:
                 dependency_delimited = ",".join(dependency_set)
-                print(f"  {cls.CROSS_CHAR} {component_type_name} {component_name} is missing dependencies. "
+                print(f"  {cls.__CROSS_CHAR} {component_type_name} {component_name} is missing dependencies. "
                       f"Skipping")
                 print(f"    (Missing dependencies: {dependency_delimited})")
                 return
