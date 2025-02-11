@@ -148,90 +148,12 @@ We provide an overview of the main objects that the PySS framework provides for 
 statistics. This will provide high level information required to understand how PySS functions
 internally.
 
-## Component
-
-The *Component* is a building block for a valid PySS configuration and an abstract object within 
-the framework. The user will not interact with the *Component* object directly, however it is 
-integral to the formation of a *ComponentPipeline* that generates statistical outputs.
-
-Again, recall the *Config* diagram depicting a series of *ComponentPipelines*. If we crack open a
-pipeline, we have the following two forms of valid pipeline:
-
-```mermaid
-graph TD;
-		
-	subgraph ComponentPipeline2
-	    direction LR;
-		ReducedStatistic
-	end
-
-	subgraph ComponentPipeline1
-		direction LR;
-		Statistic --> Reducer
-	end
-```
-
-Every *Component* is stored in a Python *module*. When building configurations, a *Component* is
-referred to by both its own name and the *module* that houses the object, similar to how a file
-path contains both the file name and directory containing the file.
-
-## Statistic
-
-The *Statistic* object is responsible for producing a valid statistic for both univariate and multivariate datasets.
-
-There are a number of specific *Statistic* objects that operate on data in slightly different ways:
-
-- *Statistic*:
-- *ReducedStatistic*: Performs both computation of a statistic and a subsequent
-  dimensionality reduction.
-
-### Statistic
-
-Takes the full *Data* object provided and computes a statistic in one operation.
-
-#### Contract
-
-$\text{Input} \in \mathbb{R}^{n \times p} \rightarrow \text{Output} \in \mathbb{R}^{p \times p}$
-
-Hence, input consists of a pair of real vectors of equivalent length. Output is required to be a single real scalar. The
-collection of results into a matrix is performed automatically by the framework.
-
-### PairwiseStatistic
-
-Iterates over all pairs of vectors (arrays) from the *Data* object. Iteration can be performed over observations or
-variables. For each pair, computes a statistic and returns the result for that pair.
-The final result is a matrix containing all pairwise results.
-
-For example, for an $n \times p$ *Data* object, if iteration is performed over the $n$ observations then there are $n^2$
-pairs. Therefore, the $PairwiseStatistic$ will produce $n^2$ results, collected into an $n \times n$ matrix.
-
-#### Contract
-$
-\begin{align}
-&\ \text{Input} \in (\mathbb{R}^p, \mathbb{R}^p) \rightarrow \text{Output} \in \mathbb{R}^{p
-\times p} \\
-&\ \text{OR} \\
-&\ \text{Input} \in (\mathbb{R}^n, \mathbb{R}^n) \rightarrow \text{Output} \in \mathbb{R}^{n
-\times n}
-\end{align}
-$
-
-Hence, input consists of a pair of real vectors of equivalent length. Output is required to be a single real scalar. The
-collection of results into a matrix is performed automatically by the framework.
-
-### ReducedStatistic
-
-$\text{Input} \in \mathbb{R}^{n \times p} \rightarrow \text{Output} \in \mathbb{R}^m; m \in
-\mathbb{N}$
 
 
-As described in section [Basic Usage](#basic-usage), the basic PySS *Pipeline* utilises three 
-main elements: *Data*, the *Config* object and the *Calculator* object. As a parts of a pipeline,
-each element receives data as input and provides transformed data as output. Hence, elements 
-must follow a *Contract*, which describes the requirements on data received and produced. 
-Contracts are described in the relevant sections.
 
-## PySS Pipeline Overview
+## Pipeline Objects
+
+We now document the **_PySS_** objects that form the pipeline users will typically be exposed to.
 
 
 ## Data
@@ -345,6 +267,9 @@ graph TB;
 The combination of these elements produces a statistical summary which occupies the final
 results provided to the user.
 
+> More discussion on *Components* are discussed in the 
+> [Component Objects](#component-objects) section below.
+
 ### Additional Notes
 
 Moreover, the *Config* object provides three main services to the user:
@@ -411,6 +336,113 @@ provide a vector output, therefore contributing multiple elements to the final r
 
 The result is provided as a *pandas DataFrame* of type *float64*, with column names based on the 
 names and schemes of the *Statistic* and *Reducer* used to compute the output.
+
+## Component Objects
+
+Recall the *Config* diagram depicting a series of *ComponentPipelines*. The two examples of a 
+valid pipeline can be illustrated as follows:
+
+```mermaid
+graph TD;
+		
+	subgraph ComponentPipeline2
+	    direction LR;
+		ReducedStatistic
+	end
+
+	subgraph ComponentPipeline1
+		direction LR;
+		Statistic --> Reducer
+	end
+```
+
+Each type of *Component* must follow a *Contract*, which dictates the requirements on data 
+received and produced. Contracts are described in the relevant sections below.
+
+## Statistic
+
+The *Statistic* object is responsible for producing a valid statistic for both univariate and
+multivariate datasets. There are a number of specific *Statistic* objects that operate on data
+in slightly different ways.
+
+### Statistic
+
+The basic *Statistic* class that computes a statistic on the *Data* in a single function.
+
+#### Contract
+
+- Input: $n \times p$ *numpy array*.
+- Output:
+    - $p \times p$ *numpy array*. \
+      OR
+    - $n \times n$ *numpy array*.
+
+Hence, input consists of a pair of real vectors of equivalent length. Output is required to be a single real scalar. The
+collection of results into a matrix is performed automatically by the framework.
+
+### PairwiseStatistic
+
+A derived *Statistic* class used specifically for statistics that perform pairwise operations
+over an axis or dimension of the *Data*. For each pair, computes a statistic and returns the
+result for that pair. The final result is a matrix containing all pairwise results.
+
+For example, for an $n \times p$ *Data* object, if iteration is performed over the $n$
+observations then there are $n^2$ pairs. Therefore, the *PairwiseStatistic* will produce $n^2$
+results, collected into an $n \times n$ matrix.
+
+#### Contract
+
+- Input:
+    - Two $n \times 1$ *numpy arrays* (observations). \
+      OR
+    - Two $p \times 1$ *numpy arrays* (variables).
+- Output:
+    - $1 \times 1$ *numpy array*. \
+      OR
+    - *float* scalar.
+
+Hence, input consists of a pair of real vectors of equivalent length. Output is required to be a
+single real scalar. The collection of results into a matrix is performed automatically by the
+framework.
+
+### ReducedStatistic
+
+A derived *Statistic* class that acts as both a *Statistic* and *Reducer* in one. Therefore, the
+*Contract* of the *ReducedStatistic* has the input from the *Statistic* class and the output
+from the *Reducer* class.
+
+#### Contract
+
+- Input:
+    - $n \times p$ *numpy array*.
+- Output:
+    - $m \times 1$ *numpy array* such that $m < \min(n^2,p^2)$ \
+      OR
+    - *float* scalar.
+
+It should also be noted that new *ReducedStatistics* can inherit from the *PairwiseStatistic*
+class, in which case the input leg of the *Contract* will be the same.
+
+## Reducer
+
+The *Reducer* object is responsible for applying dimensionality reduction methods to 
+multivariate statistical outputs from the *Statistic* class. Since *Statistics* form a 
+square matrix, many of these methods will be based on linear algebra concepts.
+
+#### Contract
+
+- Input:
+    - $p \times p$ *numpy array* \
+      OR
+    - $n \times n$ *numpy array*
+- Output:
+    - $m \times 1$ *numpy array* such that $m < \min(n^2,p^2)$ \
+      OR
+    - *float* scalar.
+
+As such *ReducedStatistics*, the output must be smaller than the original input both in terms of 
+dimension and data quantity. If a *Reducer* returns a matrix or tensor of high order, the result 
+is flattened by **_PySS_** before being returned to the user.
 
 # Advanced User Concepts
 
@@ -1216,17 +1248,9 @@ that *Contract*.
 Finally, your new *Component* must be registered either with a *Config* object for one time or 
 external use, or with the framework itself for repeated use.
 
-### Helper Methods
-
-All *Components* classes possess a number of methods intended to assist in users creating their 
-own contributions to the framework. Methods of note include:
-
-- `get_implementation()`:
-
 ### Statistic
 
-The basic *Statistic* class that computes a statistic on the *Data* in a single function. In most 
-cases, this will be the class you want to use as your basis. 
+In most cases, this will be the class you want to use as your basis. 
 
 #### Contract
 
@@ -1385,9 +1409,6 @@ class PowerEnvelopeCorrelation(Statistic):
 ```
 
 ### PairwiseStatistic
-
-A derived *Statistic* class used specifically for statistics that perform pairwise operations 
-over an axis or dimension of the *Data*. 
 
 The `PairwiseStatistic` class performs a paired iteration over the *Data* across the specified 
 dimension, providing all possible pairs as arguments to the `pairwise_compute` method that you 
@@ -1554,6 +1575,12 @@ class SpearmanR(PairwiseStatistic):
 
 ```
 
+### ReducedStatistic
+
+#### Contract
+
+#### Template
+
 ### Reducer
 
 The main responsibility of the *Reducer* is to perform dimensionality reduction on multivariate 
@@ -1685,12 +1712,6 @@ class SchattenNorm(Reducer):
         return svs_power_sum**(1 / self.__p)
 
 ```
-
-### ReducedStatistic
-
-#### Contract
-
-#### Template
 
 ### Registering the Component
 
