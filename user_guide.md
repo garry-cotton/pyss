@@ -1,6 +1,6 @@
 # Table of Contents
 
-[[TOC]]
+[[_TOC_]]
 
 # Purpose
 
