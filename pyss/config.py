@@ -6,6 +6,7 @@ import os
 import re
 import inspect
 import importlib
+import json
 
 from typing import Union, Iterable, cast
 from types import ModuleType
@@ -51,6 +52,7 @@ class Config:
             "Statistic": dict(),
             "Reducer": dict()
         }
+        self.__reducer_filtered_stats = dict()
         self.__reducer_filters = dict()
 
         if "Statistic" not in self.__cached_module_classes:
@@ -87,16 +89,26 @@ class Config:
         """
         return self.__config_scheme.get("Reducer")
 
+    def get_reducer_filtered_statistics(self, reducer: Reducer) -> dict:
+        """
+        A list of Statistics that a given Reducer is applied to.
+        """
+        return self.__reducer_filtered_stats.get(reducer)
+
     def get_reducer_filters(self, reducer: Reducer) -> dict:
         """
-        Filters for Statistics that a given Reducer is applied to.
+        Text-based filter limiting the Statistics a Reducer is applied to.
         """
         return self.__reducer_filters.get(reducer)
 
     @classmethod
-    def from_yaml(cls, name: str, yaml_string: str):
+    def from_yaml(cls, name: str, yaml_string: str) -> Config:
         """
         Creates and returns a new Config object from the provided YAML string.
+
+        Arguments:
+            name (string): A reference name for the configuration.
+            yaml_string (string): A string in YAML format representing the configuration.
         """
         instance = cls(name)
         print("Registering YAML string.")
@@ -105,9 +117,13 @@ class Config:
         return instance
 
     @classmethod
-    def from_yaml_file(cls, name: str, yaml_file_path: str):
+    def from_yaml_file(cls, name: str, yaml_file_path: str) -> Config:
         """
         Creates and returns a new Config object from a YAML file.
+
+        Arguments:
+            name (string): A reference name for the configuration.
+            yaml_file_path (string): A file path pointing to a valid configuration in YAML format.
         """
         instance = cls(name)
         print("Registering YAML configuration file: {}.".format(yaml_file_path))
@@ -120,9 +136,30 @@ class Config:
         return instance
 
     @classmethod
-    def from_dict(cls, name: str, config_dict: dict):
+    def from_internal(cls, name: str) -> Config:
+        """
+        Creates and returns a new Config object from a pre-defined internal configuration provided by the framework.
+
+        Arguments:
+            name (string): Name of the pre-defined configuration. Options available are:
+                fabfour
+                fast
+                basic
+                causal
+                distance
+                misc
+        """
+        yaml_path = f"../run_config/{name}.yaml"
+        return cls.from_yaml_file(name, yaml_path)
+
+    @classmethod
+    def from_dict(cls, name: str, config_dict: dict) -> Config:
         """
         Creates and returns a new Config object from a Python dictionary.
+
+        Arguments:
+            name (string): A reference name for the configuration.
+            config_dict (dict): A Python dictionary object representing a valid configuration.
         """
         instance = cls(name)
         print("Registering configuration dictionary object.")
@@ -131,26 +168,30 @@ class Config:
         return instance
 
     @classmethod
-    def from_json_file(cls, name: str, json_file_path: str):
+    def from_json_file(cls, name: str, json_file_path: str) -> Config:
         """
         Creates and returns a new Config object from a JSON file.
+
+        Arguments:
+            name (string): A reference name for the configuration.
+            json_file_path (str): A file path pointing to a valid configuration in JSON format.
         """
         instance = cls(name)
         print("Registering YAML configuration file: {}.".format(json_file_path))
-        instance.__config_dict = cls.__load_json_file(json_file_path)
+        with open(json_file_path, "r") as f:
+            instance.__config_dict = json.load(f)
+
         instance.__process_config_file()
         return instance
-
-    @classmethod
-    def __load_json_file(cls, json_path: str) -> dict:
-        # Load file and pass text stream to load method
-        pass
 
     def add_statistic(self,
                       statistic: Statistic,
                       scheme_name: str):
         """
         Adds a new Statistic to the configuration.
+
+        Arguments:
+
         """
 
         self.__add_component(statistic, Statistic, scheme_name)
@@ -177,22 +218,22 @@ class Config:
     def add_reducer(self,
                     reducer: Reducer,
                     scheme_name: str,
-                    applicable_statistic_names: Union[None, str, Iterable[str]] = None):
+                    statistic_filters: Union[None, str, Iterable[str]] = None):
         """
         Adds a new Reducer to the configuration.
         """
 
         self.__add_component(reducer, Reducer, scheme_name)
 
-        if applicable_statistic_names:
-            self.__add_reducer_statistic_filters(reducer, applicable_statistic_names)
+        if statistic_filters:
+            self.__add_reducer_statistic_filters(reducer, statistic_filters)
 
     def add_reducer_by_name(self,
                             module_reference: str,
                             reducer_name: str,
                             reducer_params: dict,
                             scheme_name: str,
-                            applicable_statistic_names: Union[None, str, Iterable[str]] = None,
+                            statistic_filters: Union[None, str, Iterable[str]] = None,
                             refresh_module: bool = False):
         """
         Adds a new Reducer to the configuration based on the specified name and configuration parameters.
@@ -205,7 +246,7 @@ class Config:
                                                  scheme_name,
                                                  refresh_module)
         reducer = cast(Reducer, component)
-        self.add_reducer(reducer, scheme_name, applicable_statistic_names)
+        self.add_reducer(reducer, scheme_name, statistic_filters)
 
     def __get_component_by_name(self,
                                 module_reference: str,
@@ -244,13 +285,13 @@ class Config:
 
     def remove_reducer(self, reducer: Reducer):
         reducer = self.__remove_component(reducer, Reducer)
-        self.__reducer_filters.pop(reducer, None)
+        self.__reducer_filtered_stats.pop(reducer, None)
 
     def remove_reducer_by_name(self, module_reference: str, reducer_name: str, scheme_name: str):
         reducer = self.__remove_component_by_name(Reducer, module_reference, reducer_name, scheme_name)
 
         if reducer:
-            self.__reducer_filters.pop(reducer, None)
+            self.__reducer_filtered_stats.pop(reducer, None)
 
     def __add_component(self,
                         component: Component,
@@ -314,7 +355,7 @@ class Config:
                   f"removed successfully.")
             return result
 
-    def get_yaml(self):
+    def to_yaml(self):
         statistics = self.statistics.values()
 
         if not statistics:
@@ -343,7 +384,7 @@ class Config:
         return yaml_text
 
     def export_yaml(self, export_path: str = None):
-        yaml_text = self.get_yaml()
+        yaml_text = self.to_yaml()
 
         if not yaml_text:
             return
@@ -521,15 +562,15 @@ class Config:
 
     def __add_reducer_statistic_filters(self,
                                         reducer: Reducer,
-                                        statistics: Union[None, str, Iterable[str]]):
+                                        statistic_filters: Union[None, str, Iterable[str]]):
 
         reducer_name = type(reducer).__name__
         filtered_stats = set()
 
-        if not statistics:
+        if not statistic_filters:
             return
 
-        statistic_list = self.__yaml_str_list_to_list(statistics)
+        statistic_list = self.__yaml_str_list_to_list(statistic_filters)
         module_name = self.__get_component_module_name(reducer)
 
         check_iterable(statistic_list,
@@ -546,7 +587,8 @@ class Config:
             for viable_stat_name in viable_stat_names:
                 filtered_stats.add(viable_stat_name)
 
-        self.__reducer_filters[reducer] = filtered_stats
+        self.__reducer_filtered_stats[reducer] = filtered_stats
+        self.__reducer_filters[reducer] = statistic_filters
 
     @classmethod
     def __get_module(cls,

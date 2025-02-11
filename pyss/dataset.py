@@ -4,49 +4,44 @@ Code is adapted from Patricia Wollstadt's IDTxL (https://github.com/pwollstadt/I
 """
 from __future__ import annotations
 
+import copy
+
 import numpy as np
 import pandas as pd
 import os
 
 from scipy.stats import zscore
 from scipy.signal import detrend
-from typing import Iterable, Union, TYPE_CHECKING
+from typing import Iterable, Union
 from time import time
 
 from pyss import base
-
-if TYPE_CHECKING:
-    from pyss.statistic import Statistic
+from pyss import settings
+from pyss.statistic import Statistic
 
 
 class Dataset:
 
-    __hierarchy: dict[Dataset, list[Statistic]] = dict()
-    __max_cache_results = 10  # TODO: Change to global setting
+    """
+    Store dataset for dependency analysis.
 
-    """Store dataset for dependency analysis.
-
-    Data takes a 2-dimensional array representing realisations of random variables.
+    Dataset takes a 2-dimensional array representing realisations of random variables.
     Indicate the arrangement of realisations (n) and variables (p) in a two-character string
     e.g. 'np' for an array with rows representing realisations and columns representing variables.
 
     Example:
         >>> # Initialise empty dataset object
-        >>> dataset = Data()
+        >>> dataset = Dataset()
         >>>
         >>> # Load a prefilled financial dataset
-        >>> data_forex = Data().load_dataset("forex")
+        >>> data_forex = Dataset.load_dataset("forex")
         >>>
         >>> # Create dataset objects with dataset of various sizes
         >>> d = np.arange(3000).reshape((3, 1000))  # 3 procs.,
-        >>> data_2 = Data(d, dim_order='ps')        # 1000 observations
-        >>>
-        >>> # Overwrite dataset in existing object with random dataset
-        >>> d = np.arange(5000)
-        >>> data_2.set_dataset(d, 's')
+        >>> data_2 = Dataset(d, dim_order='ps')        # 1000 observations
 
     Args:
-        dataset (array_like, optional):
+        data (array_like, optional):
             2-dimensional array with raw dataset, defaults to None.
         dim_order (str, optional):
             Order of dimensions, accepts two combinations of the characters 'n' and 'p', defaults to 'np'.
@@ -90,7 +85,6 @@ class Dataset:
                         var_names=var_names)
 
         self.instantiation_time = time()
-        self.__hierarchy[self] = list()
 
     @property
     def name(self) -> str:
@@ -258,39 +252,40 @@ class Dataset:
                 of variables (p).
         """
 
+        new_data = copy.deepcopy(data)
         self.dim_order = dim_order
         self.n_realisations_subsample = n_realisations_subsample
         self.n_variables_subsample = n_variables_subsample
 
-        if len(dim_order) != data.ndim:
+        if len(dim_order) != new_data.ndim:
             raise RuntimeError(
                 "Data array dimension ({0}) and length of "
-                "dim_order ({1}) are not equal.".format(data.ndim, len(dim_order))
+                "dim_order ({1}) are not equal.".format(new_data.ndim, len(dim_order))
             )
 
         if not self.name:
-            self.name = base.retrieve_arg_name(data, max_steps=3)
+            self.name = base.retrieve_arg_name(new_data, max_steps=3)
 
         name = self.name
-        data = self.convert_to_numpy(data)
-        data = self.__reorder_data(data, dim_order)
-        data = np.atleast_3d(data)
-        nans = np.isnan(data)
+        new_data = self.convert_to_numpy(new_data)
+        new_data = self.__reorder_data(new_data, dim_order)
+        #data = np.atleast_3d(data)
+        nans = np.isnan(new_data)
 
         if nans.any():
             raise ValueError(
                 f"Dataset {name} contains non-numerics (NaNs) in variables: {np.unique(np.where(nans)[0])}."
             )
 
-        self.__base_data = data
-        self.__data_type = type(data[0, 0])
-        self.__set_data_dim(data)
-        data = self.__subsample_data(data)
+        self.__base_data = new_data
+        self.__data_type = type(new_data[0, 0])
+        self.__set_data_dim(new_data)
+        new_data = self.__subsample_data(new_data)
 
         if self.normalise:
-            data = self.__normalise_data(data)
+            new_data = self.__normalise_data(new_data)
 
-        self.__data = data
+        self.__data = new_data
 
         if var_names is not None:
             base.check_iterable(var_names)
@@ -332,7 +327,7 @@ class Dataset:
 
     @staticmethod
     def __message(message: str):
-        if base.VERBOSE:
+        if settings.verbose:
             print(message)
 
     def add_variable(self,
@@ -376,7 +371,7 @@ class Dataset:
         if self.normalise:
             var_data = self.__normalise_data(var_data)
 
-        data = self.__base_data
+        data = copy.deepcopy(self.__base_data)
 
         if var_index == self.n_variables + 1:
             data = np.append(data, var_data, axis=1)
@@ -398,6 +393,7 @@ class Dataset:
         self.__set_data_dim(data)
         self.__data = self.__subsample_data(data)
         self.__message(f"Variable {var_name} added at position {var_index} to data {self.name} successfully.")
+        self.uncache()
 
     def remove_variable(self,
                         var_indices: Iterable[int]):
@@ -407,7 +403,8 @@ class Dataset:
         base.check_type(var_indices_list[0], int)
 
         try:
-            data = np.delete(self.__base_data, var_indices_list, axis=1)
+            data = copy.deepcopy(self.__base_data)
+            data = np.delete(data, var_indices_list, axis=1)
 
         except IndexError:
             print(
@@ -440,43 +437,8 @@ class Dataset:
         self.__n = data.shape[0]
         self.__p = data.shape[1]
 
-    def __compute_statistic(self,
-                            statistic: Statistic) -> np.ndarray:
-
-        self.__update_hierarchy(statistic)
-        return statistic.calculate(self)
-
-    def __update_hierarchy(self,
-                           statistic: Statistic):
-
-        self.__prune_cache()
-        self.__hierarchy[self].append(statistic)
-
-    def __prune_cache(self):
-        # If statistic already exists in cache, return.
-        if self in self.__hierarchy:
-            return
-
-        # Else if a new static, check if cache needs to be pruned and act if required.
-        cached_datasets = list(self.__hierarchy.keys())
-
-        if len(cached_datasets) < self.__max_cache_results:
-            return
-
-        oldest_dataset = cached_datasets[0]
-
-        for dataset in cached_datasets:
-            if dataset.instantiation_time < oldest_dataset.instantiation_time:
-                oldest_dataset = dataset
-
-        oldest_dataset.uncache()
-
     def uncache(self, include_gc: bool = False):
-        stats = self.__hierarchy.get(self)
-
-        while stats:
-            stat = stats.pop()
-            stat.uncache(include_gc)
+        Statistic.uncache(self, include_gc)
 
     @staticmethod
     def load_data(name: str):

@@ -14,7 +14,7 @@ class AdditiveNoiseModel(PairwiseStatistic):
     labels = ["unsigned", "causal", "unordered", "linear", "directed"]
 
     def __init__(self):
-        super().__init__(pairwise_dim="p",
+        super().__init__(dim="p",
                          is_ordered=True)
 
     # monkey-patch the anm_score function
@@ -39,7 +39,7 @@ class ConditionalDistributionSimilarity(PairwiseStatistic):
     labels = ["unsigned", "causal", "unordered", "nonlinear", "directed"]
 
     def __init__(self):
-        super().__init__(pairwise_dim="p", is_ordered=False)
+        super().__init__(dim="p", is_ordered=False)
 
     def pairwise_compute(self, x: np.ndarray, y: np.ndarray):
         return CDS().cds_score(x, y)
@@ -52,7 +52,7 @@ class RegressionErrorCausalInference(PairwiseStatistic):
     labels = ["unsigned", "causal", "unordered", "nonlinear", "directed"]
 
     def __init__(self):
-        super().__init__(pairwise_dim="p", is_ordered=False)
+        super().__init__(dim="p", is_ordered=False)
 
     def pairwise_compute(self, x: np.ndarray, y: np.ndarray):
         return RECI().b_fit_score(x, y)
@@ -65,7 +65,7 @@ class InformationGeometricConditionalIndependence(PairwiseStatistic):
     labels = ["causal", "directed", "nonlinear", "unsigned", "unordered"]
 
     def __init__(self, dim: str):
-        super().__init__(pairwise_dim=dim, is_ordered=False)
+        super().__init__(dim=dim, is_ordered=False)
 
     def pairwise_compute(self, x: np.ndarray, y: np.ndarray):
         return IGCI().predict_proba((x, y))

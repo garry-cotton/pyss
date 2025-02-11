@@ -1,6 +1,6 @@
 import numpy as np
 
-from typing import Iterable
+from typing import Union
 from sklearn.metrics import pairwise_distances
 from hyppo.independence import (
     MGC,
@@ -29,10 +29,10 @@ class PairwiseDistance(Statistic):
     def identifier(self) -> str:
         return self.__identifier
 
-    def labels(self) -> Iterable[str]:
+    def labels(self) -> list[str]:
         return self.__labels
 
-    def compute(self, data: np.ndarray):
+    def compute(self, data: np.ndarray) -> np.ndarray:
         return pairwise_distances(data, metric=self.__metric)
 
 
@@ -47,13 +47,13 @@ class HilbertSchmidtIndependenceCriterion(PairwiseStatistic):
     __identifier = "hsic"
     __labels = ["unsigned", "distance", "unordered", "nonlinear", "undirected"]
 
-    def __init__(self, dim, biased):
+    def __init__(self, dim: str, biased: bool):
         self.__biased = biased
 
         if biased:
             self.__identifier += ".biased"
 
-        super().__init__(pairwise_dim=dim,
+        super().__init__(dim=dim,
                          is_ordered=False)
 
     def name(self) -> str:
@@ -62,12 +62,12 @@ class HilbertSchmidtIndependenceCriterion(PairwiseStatistic):
     def identifier(self) -> str:
         return self.__identifier
 
-    def labels(self) -> Iterable[str]:
+    def labels(self) -> list[str]:
         return self.__labels
 
     def pairwise_compute(self,
                          x: np.ndarray,
-                         y: np.ndarray):
+                         y: np.ndarray) -> Union[np.ndarray, float]:
 
         stat = Hsic(bias=self.__biased).statistic(x, y)
         return stat
@@ -80,8 +80,8 @@ class HellerHellerGorfine(PairwiseStatistic):
     __identifier = "hhg"
     __labels = ["unsigned", "distance", "unordered", "nonlinear", "directed"]
 
-    def __init__(self, dim):
-        super().__init__(pairwise_dim=dim,
+    def __init__(self, dim: str):
+        super().__init__(dim=dim,
                          is_ordered=False)
 
     def name(self) -> str:
@@ -90,12 +90,12 @@ class HellerHellerGorfine(PairwiseStatistic):
     def identifier(self) -> str:
         return self.__identifier
 
-    def labels(self) -> Iterable[str]:
+    def labels(self) -> list[str]:
         return self.__labels
 
     def pairwise_compute(self,
                          x: np.ndarray,
-                         y: np.ndarray):
+                         y: np.ndarray) -> Union[np.ndarray, float]:
 
         stat = HHG().statistic(x, y)
         return stat
@@ -108,13 +108,13 @@ class DistanceCorrelation(PairwiseStatistic):
     __identifier = "dcorr"
     __labels = ["unsigned", "distance", "unordered", "nonlinear", "undirected"]
 
-    def __init__(self, dim, biased):
+    def __init__(self, dim: str, biased: bool):
         self.__biased = biased
 
         if biased:
             self.__identifier += ".biased"
 
-        super().__init__(pairwise_dim=dim,
+        super().__init__(dim=dim,
                          is_ordered=False)
 
     def name(self) -> str:
@@ -123,12 +123,12 @@ class DistanceCorrelation(PairwiseStatistic):
     def identifier(self) -> str:
         return self.__identifier
 
-    def labels(self) -> Iterable[str]:
+    def labels(self) -> list[str]:
         return self.__labels
 
     def pairwise_compute(self,
                          x: np.ndarray,
-                         y: np.ndarray):
+                         y: np.ndarray) -> Union[np.ndarray, float]:
 
         stat = Dcorr(bias=self.__biased).statistic(x, y)
         return stat
@@ -141,8 +141,8 @@ class MultiscaleGraphCorrelation(PairwiseStatistic):
     __identifier = "mgc"
     __labels = ["distance", "unsigned", "unordered", "nonlinear", "undirected"]
 
-    def __init__(self, pairwise_dim="p"):
-        super().__init__(pairwise_dim=pairwise_dim,
+    def __init__(self, dim: str):
+        super().__init__(dim=dim,
                          is_ordered=False)
 
     def name(self) -> str:
@@ -151,12 +151,12 @@ class MultiscaleGraphCorrelation(PairwiseStatistic):
     def identifier(self) -> str:
         return self.__identifier
 
-    def labels(self) -> Iterable[str]:
+    def labels(self) -> list[str]:
         return self.__labels
 
     def pairwise_compute(self,
                          x: np.ndarray,
-                         y: np.ndarray):
+                         y: np.ndarray) -> Union[np.ndarray, float]:
 
         stat = MGC().statistic(x, y)
         return stat
@@ -170,7 +170,7 @@ class GromovWasserstainTau(PairwiseStatistic):
     labels = ["unsigned", "distance", "unordered", "nonlinear", "undirected"]
 
     def __init__(self):
-        super().__init__(pairwise_dim="p",
+        super().__init__(dim="p",
                          is_ordered=False)
 
     @staticmethod
@@ -218,7 +218,7 @@ class GromovWasserstainTau(PairwiseStatistic):
 
     def pairwise_compute(self,
                          x: np.ndarray,
-                         y: np.ndarray):
+                         y: np.ndarray) -> Union[np.ndarray, float]:
 
         stat = self.gwtau(x, y)
         return stat

@@ -17,7 +17,6 @@ if TYPE_CHECKING:
 
 # GLOBAL SETTINGS
 
-VERBOSE = False
 CUSTOM_STATISTIC_URL = ""
 
 
@@ -102,7 +101,7 @@ class Component:
 
     @property
     @abstractmethod
-    def labels(self) -> Iterable[str]:
+    def labels(self) -> list[str]:
         pass
 
     @staticmethod
@@ -112,8 +111,9 @@ class Component:
 
         return prop
 
+    @staticmethod
     @abstractmethod
-    def _get_component_type(self):
+    def _get_component_type() -> type:
         pass
 
     @abstractmethod
@@ -138,10 +138,11 @@ class Component:
             Associated Configuration: {cfg_name}
             """)
 
-    def __info__(self):
-        self_type = type(self)
+    @classmethod
+    def __info__(cls):
+        self_type = type(cls)
         full_name = get_fully_qualified_type_name(self_type)
-        component_type_name = self._get_component_type().__name__
+        component_type_name = cls._get_component_type().__name__
         args = get_obj_init_args(self_type)
         required_args = list()
         optional_args = dict()
@@ -155,7 +156,7 @@ class Component:
         return dedent(
             f"""
             {component_type_name}: {full_name}
-            Name: {self.name}
+            Name: {cls.name}
             Required Parameters: {required_args}
             Optional Parameters: {optional_args}
             """)
@@ -167,12 +168,14 @@ def info(component: Component):
 
 
 def get_fully_qualified_type_name(type_obj: type):
-    module_name = ""
 
     try:
         module_name = type_obj.__module__ + "."
-    except:
+    finally:
         pass
+
+    if not module_name:
+        return type_obj.__name__
 
     return module_name + type_obj.__name__
 
@@ -322,7 +325,7 @@ def _contains_nan(a, nan_policy='propagate'):
         with np.errstate(invalid='ignore'):
             contains_nan = np.isnan(np.sum(a))
     except TypeError:
-        # If the check cannot be properly performed we fallback to omitting
+        # If the check cannot be properly performed we fall back to omitting
         # nan values and raising a warning. This can happen when attempting to
         # sum things that are not numbers (e.g. as in the function `mode`).
         contains_nan = False
@@ -447,8 +450,7 @@ def is_octave_available():
 
 
 def get_available_optional_deps():
-    """Bundle all of the optional
-    dependency checks together."""
+    """Bundle all the optional dependency checks together."""
 
     optional_deps = list()
     if is_octave_available():

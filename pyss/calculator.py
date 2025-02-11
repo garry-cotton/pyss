@@ -1,4 +1,3 @@
-# Science/maths/computing tools
 from __future__ import annotations
 
 import numpy as np
@@ -15,8 +14,7 @@ from pyss.statistic import Statistic, ReducedStatistic
 
 
 class Calculator:
-    """Compute all pairwise interactions.
-
+    """
     The calculator takes in a dataset, computes and stores all selected statistical summaries based on a configuration.
 
     Configurations are provided using the Config class.
@@ -37,7 +35,7 @@ class Calculator:
             Any set of strings by which you want to label the calculator. This can be useful later for classification
             purposes, defaults to None.
         normalise (bool, optional):
-            Normalise the dataset across realisations before computing SPCs, defaults to True.
+            Normalise the dataset across realisations before computing statistical summaries, defaults to True.
     """
 
     __cached_results = dict()
@@ -154,7 +152,7 @@ class Calculator:
                 "Config has no applicable Reducers. Please check the underlying configuration and try again.")
 
         stat_pbar = tqdm(stats.keys())
-        data = self.dataset.data
+        dataset = self.dataset
 
         for stat_name in stat_pbar:
             try:
@@ -164,7 +162,7 @@ class Calculator:
                 stat = stats[stat_name]
 
                 # Get result (checks cache first before computation).
-                stat.calculate(data)
+                stat.calculate(dataset)
 
                 # Add the statistic reference to the results dictionary.
                 results_dict[stat_name] = dict()

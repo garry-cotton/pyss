@@ -19,7 +19,7 @@ class Norm(Reducer):
         super().__init__()
 
     def compute(self, data: np.ndarray) -> np.ndarray:
-        return np.linalg.norm(x=data, ord=self._order)
+        return np.array(np.linalg.norm(x=data, ord=self._order))
 
 
 class EntryWiseMatrixNorm(Reducer):

@@ -1,15 +1,22 @@
-
 from __future__ import annotations
+
+import runpy
 
 import numpy as np
 import copy
 import gc
+import importlib
+import pkgutil
 
 from abc import abstractmethod, ABC
-from typing import Union
+from typing import Union, TYPE_CHECKING
+from pathlib import Path
 
 from pyss.base import Component
+from pyss.reducer import Reducer
 
+if TYPE_CHECKING:
+    from pyss.dataset import Dataset
 
 class Statistic(Component, ABC):
 
@@ -26,38 +33,86 @@ class Statistic(Component, ABC):
         - Input: (n x p) -> Output: (p x p)
     """
 
+    __cached_results: dict[Dataset, dict[Statistic, np.ndarray]] = dict()
+
     def __init__(self):
-        self.__cached_results: Union[np.ndarray, None] = None
+        self.__cached_result = None
         super().__init__()
 
-    def calculate(self, data: np.ndarray) -> np.ndarray:
+    def calculate(self, dataset: Dataset) -> np.ndarray:
 
-        # Get result from cache if present
-        result = self.get_result()
+        # Get result from class cache if present.
+        dataset_results = self.__cached_results.get(dataset)
 
-        if result is not None:
-            return result
+        if dataset_results is not None:
+            result = dataset_results.get(self)
+
+            if result is not None:
+                return result
 
         # Else compute from scratch.
+        data = dataset.data
 
-        # Assume contemporaneous data by selecting first (dummy) time component.
+        # Take a deep copy of the data.
         data_copy = copy.deepcopy(data)
         result = self.compute(data_copy)
 
-        # Cache result and return
-        self.__cached_results = result
+        # Cache result in the hierarchy.
+        if dataset_results is None:
+            self.__cached_results[dataset] = {
+                self: result
+            }
+        else:
+            dataset_results[self] = result
+
+        # Cache result locally.
+        self.__cached_result = result
         return result
 
-    def get_result(self) -> np.ndarray:
-        return self.__cached_results
+    @classmethod
+    def uncache(cls, dataset: Dataset, include_gc: bool = False):
+        cached_dataset_results = cls.__cached_results.get(dataset)
 
-    def uncache(self, include_gc: bool = False):
-        self.__cached_results = None
+        if cached_dataset_results:
+            for statistic in cached_dataset_results.keys():
+                Reducer.uncache(statistic, include_gc)
+
+            cls.__cached_results[dataset] = dict()
 
         if include_gc:
             gc.collect()
 
-    def _get_component_type(self):
+    def get_result(self) -> Union[None, np.ndarray]:
+        return self.__cached_result
+
+    @classmethod
+    def available_statistics(cls):
+        glb_copy = globals()
+        stats = set()
+
+        for obj in glb_copy.values():
+            obj_cls = type(obj)
+
+            if issubclass(obj_cls, cls):
+                stats.add(obj_cls)
+
+        this_path = Path(__file__)
+        dir_path = this_path.parent
+        paths = [str(dir_path / "statistics")]
+
+        while paths:
+            path = paths.pop()
+            mods = list(pkgutil.iter_modules([path]))
+
+            for mod in mods:
+                mod_path = path / (mod.name + ".py")
+                loaded_mod = runpy.run_path(str(mod_path))
+
+                for obj, val in loaded_mod.items():
+                    print(obj, val)
+
+    @staticmethod
+    def _get_component_type() -> type:
         return Statistic
 
 
@@ -71,13 +126,14 @@ class DynamicStatistic(Statistic, ABC):
         - Input: (n x p x t) -> Output: (p x p x t)
     """
 
-    def calculate(self, data: np.ndarray) -> np.ndarray:
+    def calculate(self, dataset: Dataset) -> np.ndarray:
 
         # If data is static n x p then just return a static statistic with m x m shape.
-        if data.ndim == 2:
-            return super().calculate(data)
+        if dataset.data.ndim == 2:
+            return super().calculate(dataset)
 
         # Else, compute the statistic for each time step.
+        data = dataset.data
         results = []
         t = data.shape[2]
 
@@ -107,48 +163,48 @@ class PairwiseStatistic(Statistic):
     provides a statistic across ALL time points whereas the latter provides a statistic for EACH time point.
 
     Arguments:
-        pairwise_dim (string): Declares the data axis to perform pairwise comparisons over.
-            For example, if pairwise_dim="n", computation is applied to all possible observation pairings,
+        dim (string): Declares the data axis to perform pairwise comparisons over.
+            For example, if dim="n", computation is applied to all possible observation pairings,
             resulting in n^2 comparisons and an n x n matrix result.
 
-        is_ordered (boolean): Declares whether the statistic requires ordered data (ie: the Wilcoxon signed_rank test).
+        is_ordered (boolean): Declares whether the statistic requires ordered data (ie: the Wilcoxon signed-rank test).
             If False, computation is performed on the data as is.
-            If True, the data along the pairwise_dim axis is ordered first before computation.
+            If True, the data along the dim axis is ordered first before computation.
 
     Contracts:
-        - Input: (n x p), pairwise_dim: n -> Output: (n x n)
-        - Input: (n x p), pairwise_dim: p -> Output: (p x p)
-        - Input: (n x p), pairwise_dim: t -> Output: None
-        - Input: (n x p x t), pairwise_dim: n -> Output: (n x n)
-        - Input: (n x p x t), pairwise_dim: p -> Output: (p x p)
-        - Input: (n x p x t), pairwise_dim: t -> Output: (t x t)
+        - Input: (n x p), dim: n -> Output: (n x n)
+        - Input: (n x p), dim: p -> Output: (p x p)
+        - Input: (n x p), dim: t -> Output: None
+        - Input: (n x p x t), dim: n -> Output: (n x n)
+        - Input: (n x p x t), dim: p -> Output: (p x p)
+        - Input: (n x p x t), dim: t -> Output: (t x t)
     """
 
     def __init__(self,
-                 pairwise_dim: str,
+                 dim: str,
                  is_ordered: bool):
 
-        self.__pairwise_dim = pairwise_dim
+        self.__dim = dim
         self.__is_ordered = is_ordered
-        self.__check_temporal_compatibility(pairwise_dim)
+        self.__check_temporal_compatibility(dim)
         super().__init__()
 
-    def __check_temporal_compatibility(self, pairwise_dim):
-        if isinstance(self, DynamicStatistic) and pairwise_dim == "t":
+    def __check_temporal_compatibility(self, dim):
+        if isinstance(self, DynamicStatistic) and dim == "t":
             raise TypeError("Temporal Pairwise (Timewise) statistics and Dynamic statistics are incompatible. "
                             "Timewise methods compute a statistic for an entire time series. "
                             "Dynamic methods compute a statistic for each time point.")
 
     def _reshape_data(self, data: np.ndarray) -> np.ndarray:
 
-        match self.__pairwise_dim:
+        match self.__dim:
             case "p":
                 data = data.swapaxes(0, 1)
 
             case "t":
                 data = data.swapaxes(0, 2)
 
-            case _:  # Consider adding an error if pairwise_dim is not n, p, or t
+            case _:  # Consider adding an error if dim is not n, p, or t
                 data = data
 
         return data
@@ -156,7 +212,7 @@ class PairwiseStatistic(Statistic):
     @abstractmethod
     def pairwise_compute(self,
                          x: np.ndarray,
-                         y: np.ndarray):
+                         y: np.ndarray) -> Union[np.ndarray, float]:
         pass
 
     def compute(self, data: np.ndarray) -> np.ndarray:
@@ -190,6 +246,6 @@ class ReducedStatistic(Statistic, ABC):
     Output is NOT subject to further processing by applicable Reducers and only flattened, if required.
     """
 
-    def calculate(self, data: np.ndarray) -> np.ndarray:
-        result = super().calculate(data)
+    def calculate(self, dataset: Dataset) -> np.ndarray:
+        result = super().calculate(dataset)
         return result.flatten()

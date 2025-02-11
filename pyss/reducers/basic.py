@@ -1,7 +1,22 @@
 import numpy as np
+import scipy.stats as sp
 
 from pyss.reducer import Reducer
 
+
+class Moment(Reducer):
+
+    name = "Moment",
+    identifier = "moment"
+    labels = ["vector"]
+
+    def __init__(self, moments: list[int]):
+        self.__moments = moments
+        super().__init__()
+
+    def compute(self, data: np.ndarray) -> np.ndarray:
+        mom = sp.moment(data, moment = self.__moments)
+        return mom
 
 class SingularValues(Reducer):
 

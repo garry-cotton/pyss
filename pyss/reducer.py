@@ -5,41 +5,54 @@ import copy
 import gc
 
 from abc import abstractmethod
-from typing import Union, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
-from pyss.statistic import Statistic
 from pyss.base import Component
 
 if TYPE_CHECKING:
-    from pyss.config import Config
+    from pyss.statistic import Statistic
 
 
 class Reducer(Component):
 
+    __cached_results: dict[Statistic, dict[Reducer, np.ndarray]] = dict()
+
     def __init__(self):
-        self.__cached_result: dict[Statistic, np.ndarray] = dict()
-        self.__cfg: Union[Config, None] = None
         super().__init__()
 
     def calculate(self,
                   statistic: Statistic) -> np.ndarray:
 
-        summary_result = self.__cached_result.get(statistic)
+        statistic_results = self.__cached_results.get(statistic)
 
-        if summary_result is not None:
-            return summary_result
+        if statistic_results is not None:
+            result = statistic_results.get(self)
+
+            if result is not None:
+                return result
 
         statistic_result = statistic.get_result()
         statistic_result_cp = copy.deepcopy(statistic_result)
-        statistic_result_cp = np.atleast_3d(statistic_result_cp)
-        statistic_sliced = self._slice_data(statistic_result_cp)
-        summary_result = self.compute(statistic_sliced)
-        summary_result = np.array(summary_result)
-        self.__cached_result[statistic] = summary_result
-        return summary_result
+        #statistic_result_cp = np.atleast_3d(statistic_result_cp)
+        #statistic_sliced = self._slice_data(statistic_result_cp)
+        result = self.compute(statistic_result_cp)
+        result = np.array(result)
 
-    def uncache(self, include_gc: bool = False):
-        self.__cached_result = None
+        if statistic_results is None:
+            self.__cached_results[statistic] = {
+                self: result
+            }
+        else:
+            statistic_results[self] = result
+
+        return result
+
+    @classmethod
+    def uncache(cls, statistic: Statistic, include_gc: bool = False):
+        cached_statistic_results = cls.__cached_results.get(statistic)
+
+        if cached_statistic_results:
+            cls.__cached_results[statistic] = dict()
 
         if include_gc:
             gc.collect()
@@ -48,9 +61,12 @@ class Reducer(Component):
     def compute(self, data: np.ndarray) -> np.ndarray:
         pass
 
+
+
     @staticmethod
     def _slice_data(data: np.ndarray):
         return data[:, :, 0]
 
-    def _get_component_type(self):
+    @staticmethod
+    def _get_component_type() -> type:
         return Reducer
