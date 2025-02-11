@@ -1,7 +1,3 @@
-# Table of Contents
-
-[[_TOC_]]
-
 # Purpose
 
 The main role of the library is to provide a framework for easily computing a variety of 
