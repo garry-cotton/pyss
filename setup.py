@@ -38,7 +38,7 @@ testing_extras = [
 
 
 setup(
-    name='pyspi',
+    name='pyss',
     packages=find_packages(),
     package_data={'': ['run_config/testing.yaml',
                        'run_config/fabfour_config.yaml',

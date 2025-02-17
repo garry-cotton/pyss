@@ -1,11 +1,15 @@
 import numpy as np
+import warnings
 
-from sklearn.gaussian_process import GaussianProcessRegressor
-from cdt.causality.pairwise import CDS, IGCI, RECI
-from cdt.causality.pairwise.ANM import normalized_hsic
+with warnings.catch_warnings(record=True) as w:
+    warnings.simplefilter("always")
+    
+    from sklearn.gaussian_process import GaussianProcessRegressor
+    from cdt.causality.pairwise.ANM import normalized_hsic
+    from cdt.causality.pairwise import CDS, IGCI, RECI
+    from pyss.statistic import PairwiseStatistic
 
-from pyss.statistic import PairwiseStatistic
-
+    IMPORT_WARNINGS = w
 
 class AdditiveNoiseModel(PairwiseStatistic):
 

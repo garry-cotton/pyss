@@ -6,11 +6,11 @@ from pyss.reducer import Reducer
 
 class Moment(Reducer):
 
-    name = "Moment",
+    name = "Moment"
     identifier = "moment"
     labels = ["vector"]
 
-    def __init__(self, moments: list[int]):
+    def __init__(self, moments: list[int] = [2,4]):
         self.__moments = moments
         super().__init__()
 

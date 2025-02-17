@@ -4,7 +4,7 @@ import numpy as np
 import copy
 import gc
 
-from abc import abstractmethod
+from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
 
 from pyss.base import Component
@@ -13,7 +13,7 @@ if TYPE_CHECKING:
     from pyss.statistic import Statistic
 
 
-class Reducer(Component):
+class Reducer(Component, ABC):
 
     __cached_results: dict[Statistic, dict[Reducer, np.ndarray]] = dict()
 
@@ -60,8 +60,6 @@ class Reducer(Component):
     @abstractmethod
     def compute(self, data: np.ndarray) -> np.ndarray:
         pass
-
-
 
     @staticmethod
     def _slice_data(data: np.ndarray):

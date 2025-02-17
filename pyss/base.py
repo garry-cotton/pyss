@@ -8,19 +8,21 @@ import yaml
 import inspect
 
 from scipy.stats import zscore
-from typing import Iterable, Union, Any, TYPE_CHECKING
-from abc import abstractmethod
+from typing import Iterable, Union, Generator, Any, TYPE_CHECKING
+from abc import ABC, abstractmethod
 from textwrap import dedent
 
 if TYPE_CHECKING:
     from pyss.config import Config
 
 # GLOBAL SETTINGS
+IGNORE_IMPORT_WARNINGS = False
 
-CUSTOM_STATISTIC_URL = ""
+# URLs
+PYSS_GITHUB_ISSUES_URL = "https://github.com/garry-cotton/pyss/issues/"
+CUSTOM_COMPONENTS_URL = ""
 
-
-class Component:
+class Component(ABC):
 
     """
     Base object for both Statistic and Reducer components.
@@ -180,6 +182,19 @@ def get_fully_qualified_type_name(type_obj: type):
     return module_name + type_obj.__name__
 
 
+def has_required_func_args(func: function) -> bool:
+    pars = inspect.signature(func).parameters
+
+    for arg_name, par in pars.items():
+        if arg_name == "self":
+            continue
+
+        if par.default is inspect._empty:
+            return True
+        
+    return False
+
+
 def get_obj_init_args(class_obj: type) -> dict[str, Any]:
 
     # Get class init argument specification
@@ -188,12 +203,13 @@ def get_obj_init_args(class_obj: type) -> dict[str, Any]:
 
     # Add standard args
     n_defaults = len(arg_spec.defaults) if arg_spec.defaults else 0
-    required_args = arg_spec.args[:-n_defaults]
-    optional_args = arg_spec.args[-n_defaults:]
+
+    optional_args = arg_spec.args[-n_defaults:] if n_defaults > 0 else list()
+    required_args = arg_spec.args[:-n_defaults] if n_defaults > 0 else arg_spec.args
 
     for arg in required_args:
         args[arg] = None
-
+    
     for i, arg in enumerate(optional_args):
         args[arg] = arg_spec.defaults[i]
 
@@ -231,7 +247,7 @@ def get_type_name(arg_val):
 
 
 def check_type(arg_val: object,
-               arg_type: type,
+               arg_types: Union[type, Iterable[type]],
                arg_name: str = None,
                is_try: bool = False,
                custom_error_msg: str = None) -> Union[None, bool]:
@@ -239,17 +255,27 @@ def check_type(arg_val: object,
     if not arg_name:
         arg_name = retrieve_arg_name(arg_val)
 
-    type_name = arg_type.__name__
-    if not isinstance(arg_val, arg_type):
-        if is_try:
-            return False
+    if not isinstance(arg_types, Iterable):
+        arg_types = [arg_types]
+    
+    type_names = list()
 
-        actual_type = get_type_name(arg_val)
+    for arg_type in arg_types:    
+        type_name = arg_type.__name__
+        type_names.append(type_name)
+    
+        if isinstance(arg_val, arg_type):
+            return True
+            
+    if is_try:
+        return False
 
-        if custom_error_msg is not None:
-            raise TypeError(custom_error_msg)
+    actual_type = get_type_name(arg_val)
 
-        raise TypeError(f"{arg_name} should be an {type_name} type, received {actual_type}.")
+    if custom_error_msg is not None:
+        raise TypeError(custom_error_msg)
+
+    raise TypeError(f"{arg_name} should be one of {type_names} types, received {actual_type}.")
 
     if is_try:
         return True
@@ -283,7 +309,7 @@ def check_iterable(iterable: Iterable,
         return
 
     element = iterator.__next__()
-    is_correct_type = check_type(arg_name=arg_name, arg_type=iterable_type, arg_val=element, is_try=True)
+    is_correct_type = check_type(arg_name=arg_name, arg_types=iterable_type, arg_val=element, is_try=True)
 
     if not is_correct_type:
         if is_try:
