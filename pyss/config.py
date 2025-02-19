@@ -612,10 +612,17 @@ class Config:
         print(f"Building internal configuration.")
         stats_spec = self.__get_config_top_level("Statistics")
         reducers_spec = self.__get_config_top_level("Reducers")
-        rstats_spec = self.__get_config_top_level("ReducedStatistics")
-
-        if False:
-            raise ValueError(f"Configuration is missing required definition for {level_name}.")
+        rstats_spec = self.__get_config_top_level("ReducedStatistics")        
+        
+        invalid_config = all(
+            [not stats_spec and not reducers_spec,
+             not rstats_spec]
+        )
+        
+        if invalid_config:
+            raise ValueError(f"Configuration is missing required definitions. One of the following must be fulfilled:"
+                            "   - At least one Statistic and one Reducer specified."
+                            "   - At least one ReducedStatistic specified.")
 
         self.__build_config_scheme(stats_spec, reducers_spec, rstats_spec)
 
@@ -623,7 +630,7 @@ class Config:
         level_dict = self.__config_dict.get(level_name)
 
         if not level_dict:
-            return
+            return dict()
 
         pyb.check_type(level_dict,
                        dict,

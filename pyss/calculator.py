@@ -142,71 +142,96 @@ class Calculator:
         results_dict = dict()
         stats = config.statistics
         reducers = config.reducers
-
-        if not stats:
-            raise ValueError(
-                "Config has no applicable Statistics. Please check the underlying configuration and try again.")
-
-        if not reducers:
-            raise ValueError(
-                "Config has no applicable Reducers. Please check the underlying configuration and try again.")
-
-        stat_pbar = tqdm(stats.keys())
+        rstats = config.reduced_statistics
         dataset = self.dataset
+        elapsed = 0
 
-        for stat_name in stat_pbar:
-            try:
-                stat_pbar.set_description(f"Processing [{self._name}: {stat_name}]")
+        # Calculate configured Statistics.
+        if stats:
+            stat_pbar = tqdm(stats.keys())            
 
-                # Get the next statistical summary.
-                stat = stats[stat_name]
-
-                # Get result (checks cache first before computation).
-                stat.calculate(dataset)
-
-                # Add the statistic reference to the results dictionary.
-                results_dict[stat_name] = dict()
-
-            except Exception as e:
-                warnings.warn(f'Caught {type(e)} for Statistic "{stat_name}": {e}')
-
-        stat_pbar.close()
-
-        reducer_pbar = tqdm(reducers.keys())
-        stat_names = list(results_dict.keys())
-
-        for reducer_name in reducer_pbar:
-            reducer_pbar.set_description(f"Processing [{self._name}: {reducer_name}]")
-            reducer = reducers[reducer_name]
-            applicable_stat_names = config.get_reducer_filters(reducer)
-
-            if applicable_stat_names is None:
-                reducer_stat_names = stat_names
-            else:
-                reducer_stat_names = [stat_name for stat_name in applicable_stat_names if stat_name in stat_names]
-
-            for stat_name in reducer_stat_names:
-
+            for stat_name in stat_pbar:
                 try:
-                    # Get computed statistic.
+                    stat_pbar.set_description(f"Processing [{self._name}: {stat_name}]")
+
+                    # Get the next statistic.
                     stat = stats[stat_name]
 
-                    # If the Statistic is a ReducedStatistic (ie. an all-in-one) then store the result and continue.
-                    if isinstance(stat, ReducedStatistic):
-                        results_dict[stat_name]["identity"] = stat.get_result()
-                        continue
+                    # Get result (checks cache first before computation).
+                    stat.calculate(dataset)
 
-                    # Reduce the result.
-                    R = reducer.calculate(stat).squeeze()
-
-                    # Save results.
-                    results_dict[stat_name][reducer_name] = R
+                    # Add the statistic reference to the results dictionary.
+                    results_dict[stat_name] = dict()
 
                 except Exception as e:
-                    warnings.warn(f'Caught {type(e)} for Reducer "{stat_name}-{reducer_name}": {e}')
+                    warnings.warn(f'Caught {type(e)} for Statistic "{stat_name}": {e}')
 
-        print(f"\nCalculation complete. Time taken: {reducer_pbar.format_dict['elapsed']:.4f}s")
-        reducer_pbar.close()
+            stat_pbar.close()
+            elapsed += stat_pbar.format_dict["elapsed"]
+
+            # Calculate configured Reducers.        
+            reducer_pbar = tqdm(reducers.keys())
+            stat_names = list(results_dict.keys())
+
+            for reducer_name in reducer_pbar:
+                reducer_pbar.set_description(f"Processing [{self._name}: {reducer_name}]")
+                reducer = reducers[reducer_name]
+                applicable_stat_names = config.get_reducer_filters(reducer)
+
+                if applicable_stat_names is None:
+                    reducer_stat_names = stat_names
+                else:
+                    reducer_stat_names = [stat_name for stat_name in applicable_stat_names if stat_name in stat_names]
+
+                for stat_name in reducer_stat_names:
+
+                    try:
+                        # Get computed statistic.
+                        stat = stats[stat_name]
+
+                        # If the Statistic is a ReducedStatistic (ie. an all-in-one) then store the result and continue.
+                        if isinstance(stat, ReducedStatistic):
+                            results_dict[stat_name]["self"] = stat.get_result()
+                            continue
+
+                        # Reduce the result.
+                        R = reducer.calculate(stat).squeeze()
+
+                        # Save results.
+                        results_dict[stat_name][reducer_name] = R
+
+                    except Exception as e:
+                        warnings.warn(f'Caught {type(e)} for Reducer "{stat_name}-{reducer_name}": {e}')
+
+            reducer_pbar.close()
+            elapsed += reducer_pbar.format_dict["elapsed"]
+
+        # Calculate configured ReducedStatistics.
+        if rstats:
+            
+            rstat_pbar = tqdm(rstats.keys())            
+
+            for rstat_name in rstat_pbar:
+                try:
+                    rstat_pbar.set_description(f"Processing [{self._name}: {rstat_name}]")
+
+                    # Get the next reduced statistical summary.
+                    rstat = rstats[rstat_name]
+
+                    # Get result.
+                    R = rstat.calculate(dataset).squeeze()
+
+                    # Save results.
+                    results_dict[rstat_name] = dict()
+                    results_dict[rstat_name]["self"] = R
+
+                except Exception as e:
+                    warnings.warn(f'Caught {type(e)} for ReducedStatistic "{rstat_name}": {e}')
+
+            rstat_pbar.close()
+            elapsed += rstat_pbar.format_dict["elapsed"]
+
+        print(f"\nCalculation complete. Time taken: {elapsed:.4f}s")
         self._results = self._build_results_table(results_dict)
         self._results_dict = results_dict
         # inspect_calc_results(self)
