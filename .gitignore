@@ -1,5 +1,3 @@
-pyspi.egg-info
-pyspi/__pycache__
 **/__pycache__/**
 dist
 *.pkl
@@ -11,5 +9,8 @@ dist
 build
 octave-workspace
 readme.html
-/venv
+venv
+img
+tests
+pyss/statistics/wip
 README.md.bak
