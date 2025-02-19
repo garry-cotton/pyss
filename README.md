@@ -603,9 +603,9 @@ Statistics:
                 scheme_1:
                     parameter_1: parameter_1_value
                     parameter_2: parameter_2_value
-				scheme_2:
-					parameter_1: parameter_1_value
-					parameter_2: parameter_2_value
+                scheme_2:
+                    parameter_1: parameter_1_value
+                    parameter_2: parameter_2_value
                     .
                     .
                     .
@@ -621,9 +621,9 @@ Statistics:
                     .
         Statistic_2:
             schemes:
-              .
-              .
-              .
+                .
+                .
+                .
         .
         .
         .
@@ -639,7 +639,7 @@ Statistics:
     .
     .
     .
-	
+
 Reducers:
     reducer_module_1:
         Reducer_1:
