@@ -28,3 +28,4 @@ classifiers = [
 dynamic = ["dependencies", "optional-dependencies"]
 
 [project.urls]
+Repository = "https://github.com/garry-cotton/pyss"

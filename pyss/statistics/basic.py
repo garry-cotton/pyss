@@ -45,25 +45,26 @@ class Covariance(Statistic):
     def labels(self) -> list[str]:
         return self.__labels
 
-    def compute(self, dataset: np.ndarray) -> np.ndarray:
-        cov = self.__fit(dataset)
-        return cov.covariance_
-
-    def __fit(self, dataset: np.ndarray):
-        cov_dir = [x for x in skcov.__dir__() if inspect.isclass(getattr(skcov, x))]
-
-        if self.__estimator not in cov_dir:
-            available_estimators = ",".join(cov_dir)
-            raise AttributeError(f"The {self.__name__} estimator {self.__estimator} is not supported.\n"
-                                 f"Options include: {available_estimators}.")
-
-        cov_class = getattr(skcov, self.__estimator)()
-        cov = cov_class.fit(dataset)
+    def compute(self, data: np.ndarray) -> np.ndarray:
+        cov_obj = self.__fit(data)
+        cov = cov_obj.covariance_
 
         if self.__is_squared:
             cov = np.square(cov)
 
         return cov
+
+    def __fit(self, data: np.ndarray):
+        cov_dir = [x for x in skcov.__dir__() if inspect.isclass(getattr(skcov, x))]
+
+        if self.__estimator not in cov_dir:
+            available_estimators = ", ".join(cov_dir)
+            raise AttributeError(f"The {self.__class__.__name__} estimator {self.__estimator} is not supported.\n"
+                                 f"Options include: {available_estimators}.")
+
+        cov_class = getattr(skcov, self.__estimator)()
+        cov_obj = cov_class.fit(data)
+        return cov_obj
 
 
 class Precision(Covariance):
@@ -79,9 +80,13 @@ class Precision(Covariance):
                          squared=squared)
 
     def compute(self, dataset: np.ndarray) -> np.ndarray:
-        cov = self.__fit(dataset)
-        return cov.precision_
+        cov_obj = self.__fit(dataset)
+        cov = cov_obj.precision_
 
+        if self.__is_squared:
+            cov = np.square(cov)
+
+        return cov
 
 class SpearmanR(PairwiseStatistic):
     # Setting the name internally.

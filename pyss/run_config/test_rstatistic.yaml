@@ -1,5 +1,12 @@
 ReducedStatistics:
-  pyss.rstatistics.basic:
+  pyss.rstatistics.test:
+    ReducedCovarianceTest:
+      schemes:
+        empirical:
+          estimator: empirical
+          squared: True
+
+  pyss.rstatistics.pca:
     PCAVarianceExplainedRatio:
       schemes:
         std:

@@ -2,13 +2,20 @@ name: Unit Testing Pipeline
 
 on: 
   push:
+    branches:
+      - main
+
+  pull_request:
+    branches:
+      - main
 
 jobs:
   test-ubuntu:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
+        os: [ubuntu-latest, windows-latest, macos-latest]
     steps:
       - uses: actions/checkout@v4
       - name: Setup python ${{ matrix.python-version }}
@@ -25,4 +32,5 @@ jobs:
           python -m pip install --upgrade pip
           pip install setuptools
           pip install -r requirements.txt
-          pip install .
+      - name: Install pyss
+        run: pip install .
