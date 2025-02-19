@@ -61,7 +61,7 @@ setup(
                        'data/standard_normal.npy',
                        'data/cml7.npy']},
     include_package_data=True,
-    version='1.0.0',
+    version='1.0.1',
     description='Library for statistical analysis of static datasets.',
     author='Garry S. Cotton',
     author_email='garry.s.cotton@gmail.com',

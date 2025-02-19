@@ -28,8 +28,3 @@ classifiers = [
 dynamic = ["dependencies", "optional-dependencies"]
 
 [project.urls]
-
-
-[build-system]
-build-backend = "flit_core.buildapi"
-requires = ["flit_core >=3.2,<4"]
