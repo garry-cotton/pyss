@@ -1,4 +1,4 @@
-name: Unit Testing Pipeline
+name: MacOS Unit Testing Pipeline
 
 on: 
   push:
@@ -10,7 +10,7 @@ on:
       - main
 
 jobs:
-  test-ubuntu:
+  test-macos:
     runs-on: macos-latest
     strategy:
       matrix:
@@ -24,7 +24,6 @@ jobs:
           cache: 'pip'
       - name: Install octave
         run: |
-          sudo xcode-select --install
           /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
           brew update
           brew upgrade

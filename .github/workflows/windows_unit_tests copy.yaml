@@ -1,4 +1,4 @@
-name: Unit Testing Pipeline
+name: Windows Unit Testing Pipeline
 
 on: 
   push:
@@ -10,7 +10,7 @@ on:
       - main
 
 jobs:
-  test-ubuntu:
+  test-windows:
     runs-on: windows-latest
     strategy:
       matrix:

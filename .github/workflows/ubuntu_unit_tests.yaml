@@ -1,4 +1,4 @@
-name: Unit Testing Pipeline
+name: Ubuntu Unit Testing Pipeline
 
 on: 
   push:
