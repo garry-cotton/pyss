@@ -478,105 +478,1355 @@ This is simply a declaration of whether the following *Components* are *Statisti
 or *ReducedStatistics*. Therefore, it provides a logical container for *Components* of the same
 type.
 
-#### 3. Install with _pip_
-Using `pip` for [`pyspi`](https://pypi.org/project/pyspi/):
-```
-pip install pyspi
-```
+#### Module
 
-For a more detailed guide on how to install _pyspi_, as well as how you can use _pyspi_ without first installing Octave, 
-please see the [full documentation](https://time-series-features.gitbook.io/pyspi/installation/installing-pyspi).
-Additionally, we provide a comprehensive [troubleshooting guide](https://time-series-features.gitbook.io/pyspi/installation/troubleshooting) for users who encounter issues installing _pyspi_ on their system,
-as well as [alternative installation options](https://time-series-features.gitbook.io/pyspi/installation/alternative-installation-options). 
+A reference to the Python module containing the *Component*.
 
-## Getting Started 🚀
+- Internal modules are referenced by the standard Python "dot" convention (ie.
+  pyss.statistics.basic).
+- External modules are referenced by the full path to the module file (ie. C:\\My Modules\\My
+  Components.py).
 
-Once you have installed _pyspi_, you can learn how to apply the package by checking out the [walkthrough tutorials](https://time-series-features.gitbook.io/pyspi/usage/walkthrough-tutorials) in our documentation.  Click any of the examples below to access the tutorials in our full documentation:
+#### Component
 
-- [Simple demonstration](https://time-series-features.gitbook.io/pyspi/usage/walkthrough-tutorials/getting-started-a-simple-demonstration)
+Indicates the name of the *Component*.
 
-- [Finance: stock price time series](https://time-series-features.gitbook.io/pyspi/usage/walkthrough-tutorials/finance-stock-price-time-series)
+> A list of available Statistics, Reducers and ReducedStatistics can be found in the [PySS
+Components](#pyss-components) section.
 
+#### Schemes
 
-- [Neuroimaging: fMRI time series)](https://time-series-features.gitbook.io/pyspi/usage/walkthrough-tutorials/neuroimaging-fmri-time-series)
+A scheme simply refers to one specific parameterisation of a *Component*.
 
-### Advanced Usage
-For advanced users, we offer several additional guides in the [full documentation](https://time-series-features.gitbook.io/pyspi/usage/advanced-usage) on how you can distribute your _pyspi_ jobs across PBS clusters, as well as how you can construct your own subsets of SPIs. 
+For example, the Statistic *Covariance* takes the parameter *estimator*, which dictates the type
+of covariance statistic calculated. Therefore, it's possible to have multiple Covariance objects
+in a single configuration but with different parameterisations returning different results. This
+distinction is wrapped up in a *Scheme*
 
-## SPI Descriptions 📋
-To access a table with a high-level overview of the _pyspi_ library of SPIs, including their associated identifiers, see the [table of SPIs](https://time-series-features.gitbook.io/pyspi/spis/table-of-spis) in the full documentation.
-For detailed descriptions of each SPI, as well as its associated estimators, we provide a full breakdown in the [SPI descriptions](https://time-series-features.gitbook.io/pyspi/spis/spi-descriptions) page of our documentation. 
+#### Reducer Filters
 
-## Documentation
-The full documentation is hosted on [GitBooks](https://time-series-features.gitbook.io/pyspi/). 
-Use the following links to quickly access some of the key sections:
+By default, *Reducers* are applied to every *Statistic* scheme specified in the configuration. 
+However, any *Reducer* can be filtered to only produce outputs for certain *Statistic* schemes. The 
+designation follows the "dot" format, with each step in the configuration hierarchy providing an 
+attribute in the format: `Module.Component.schemeName`
 
-- [Full installation guide](https://time-series-features.gitbook.io/pyspi/installation)
-- [Troubleshooting](https://time-series-features.gitbook.io/pyspi/installation/troubleshooting)
-- [Alternative installation options](https://time-series-features.gitbook.io/pyspi/installation/alternative-installation-options)
-- [Usage guide](https://time-series-features.gitbook.io/pyspi/usage)
-- [Distributing _pyspi_ computations](https://time-series-features.gitbook.io/pyspi/usage/advanced-usage/distributing-calculations-on-a-cluster)
-- [Table of SPIs and descriptions](https://time-series-features.gitbook.io/pyspi/spis)
-- [FAQ](https://time-series-features.gitbook.io/pyspi/usage/faq)
-- [API Reference](https://time-series-features.gitbook.io/pyspi/api-reference)
-- [Development guide](https://time-series-features.gitbook.io/pyspi/development)
+For example, our configuration contains the following *Statistic* setup:
 
-## Contributing to _pyspi_ 👨‍👨‍👦‍👦
-Contributions play a vital role in the continual development and enhancement of _pyspi_, a project built and enriched through community collaboration.
-If you would like to contribute to _pyspi_, or explore the many ways in which you can participate in the project, please have a look at our 
-detailed [contribution guidelines](https://time-series-features.gitbook.io/pyspi/development/contributing-to-pyspi) about how to proceed.
-In contributing to _pyspi_, all participants are expected to adhere to our [code of conduct](https://time-series-features.gitbook.io/pyspi/development/code-of-conduct).
-
-### SPI Wishlist
-We strive to provide the most comprehensive toolkit of SPIs. If you have ideas for new SPIs or suggestions for improvements to existing ones, we are eager to hear from and collaborate with you! 
-Any pairwise dependence measure, provided it is accompanied by a published research paper, typically falls within the scope for consideration in the 
-_pyspi_ library.
-You can access our SPI wishlist via the [projects tab](https://github.com/DynamicsAndNeuralSystems/pyspi/projects) in this repo to open a request.
-
-## Acknowledgement 👍
-
-If you use this software, please read and cite this article:
-
-- &#x1F4D7; O.M. Cliff, A.G. Bryant, J.T. Lizier, N. Tsuchiya, B.D. Fulcher. [Unifying pairwise interactions in complex dynamics](https://doi.org/10.1038/s43588-023-00519-x), _Nature Computational Science_ (2023).
-
-Note that [preprint](https://arxiv.org/abs/2201.11941) and [free-to-read](https://rdcu.be/dn3JB) versions of this article are available.
-
-<details closed>
-    <summary>Click here for a BibTex reference:</summary>
+```yaml
+Statistics:
+  my_statistic_module:
+    MyStatistic:
+      schemes:
+        scheme_1:
+          .
+          .
+          .
+        scheme_2:
+          .
+          .
+          .
+        .
+        .
+        .
 
 ```
-@article{Cliff2023:UnifyingPairwiseInteractions,
-	title = {Unifying pairwise interactions in complex dynamics},
-	volume = {3},
-	issn = {2662-8457},
-	url = {https://www.nature.com/articles/s43588-023-00519-x},
-	doi = {10.1038/s43588-023-00519-x},
-	number = {10},
-	journal = {Nature Computational Science},
-	author = {Cliff, Oliver M. and Bryant, Annie G. and Lizier, Joseph T. and Tsuchiya, Naotsugu and Fulcher, Ben D.},
-	month = oct,
-	year = {2023},
-	pages = {883--893},
+
+We wish to add a *Reducer* `MyReducer` to the configuration and **limit** its operation to our 
+*Statistic* `MyStatistic` above. This can be achieved with the following structure:
+
+```yaml
+Reducers:
+  my_reducer_module:
+    MyReducer:
+      filters:
+        - "my_statistic_module.MyStatistic.scheme_1"
+      schemes:
+        .
+        .
+        .
+```
+
+Additional **operators** are available to provide flexibility in setting filters:
+- `*` acts as a wild card. It can be used at any step in the attribute path. Examples include:
+  - The designation `"my_statistic_module.MyStatistic.*"` will limit the *Reducer* to only
+    `MyStatistic` parameterisation schemes.
+  - The designation `"my_statistic_module.*` will limit the *Reducer* to only *Statistics* in your 
+    configuration under the module `my_statistic_module`.
+  - The designation `"my_statistic_module.*.scheme_1"` will limit the *Reducer* to schemes with the 
+    name `scheme_1` belonging to *Statistics* under the module `my_statistic_module`. 
+- `¬` prepended to the attribute path acts as a negation. Examples include:
+  - The designation `"¬my_statistic_module.MyStatistic.scheme_1"` will prevent the *Reducer* 
+    operating on scheme `scheme_1` under `MyStatistic`.
+
+> Affirmative and negative filters combine differently. For example:
+> - Multiple affirmative (normal) filters: Inclusive (OR condition). A scheme that matches any
+    filter will be included.
+> - Multiple negative filters: Exclusive (AND condition/NOT OR condition). A scheme that matches
+    no filter will be included.
+> - Affirmatives and negatives: Exclusive (AND condition). A scheme that matches any affirmative
+    and no negative will be included.
+
+The two operators can be also combined:
+- The designation `"¬my_statistic_module.MyStatistic.*"` will prevent the *Reducer* operating on 
+  any scheme under the *Statistic* `MyStatistic`.
+- The designation `"¬my_statistic_module.*.scheme_1"` will prevent the *Reducer* operating on 
+  any scheme named `scheme_1` under the module `my_statistic_module`.
+
+### Additional Notes
+
+By default, every configured *Statistic* is subject to reduction by every configured *Reducer*.
+Therefore, by default, the output of a configuration is the Cartesian product of the set of
+*Statistics* with the set of *Reducers*. It is important to remember this when adding a new
+*Statistic* or *Reducer* to a configuration without filtering.
+
+### Templates
+
+Below we provide generic templates for a valid configuration in different formats.
+
+In the following configuration templates, we assume the following:
+
+- *Statistic_1* and *Statistic_2* are both contained within the same Python *module* called
+  *StatisticModule_1*.
+- *Reducer_1* and *Reducer_2* are both contained within the same Python *module* called
+  *ReducerModule_2*
+- All other *Components* are stored in their own Python *modules*.
+
+#### YAML
+
+The required YAML format for a configuration file is as follows:
+
+```yaml
+Statistics:
+    statistic_module_1:
+        Statistic_1:
+            schemes:
+                scheme_1:
+                    parameter_1: parameter_1_value
+                    parameter_2: parameter_2_value
+				scheme_2:
+					parameter_1: parameter_1_value
+					parameter_2: parameter_2_value
+                    .
+                    .
+                    .
+                    parameter_n: parameter_n_value
+                .
+                .
+                .
+                scheme_n:
+                    parameter_1: parameter_1_value
+                    parameter_2: parameter_2_value
+                    .
+                    .
+                    .
+        Statistic_2:
+            schemes:
+              .
+              .
+              .
+        .
+        .
+        .
+    statistic_module_2:
+        Statistic_m:
+            schemes:
+                scheme_1:
+                    parameter_1: parameter_1_value
+                    parameter_2: parameter_2_value
+                    .
+                    .
+                    .
+    .
+    .
+    .
+	
+Reducers:
+    reducer_module_1:
+        Reducer_1:
+            filters:
+                - "statistic_module_1.Statistic_1.scheme_2"
+                - "statistic_module_2.Statistic_3.scheme_1"
+                - "¬statistic_module_3.*"
+                .
+                .
+                .
+            
+            schemes:
+                scheme_1:                    
+                    .
+                    .
+                    .
+    .
+    .
+    .
+    reducer_module_p:
+        .
+        .
+        .
+```
+
+#### JSON
+
+The required JSON format for a configuration file is as follows:
+
+```json
+{
+    "Statistics": {
+        "statistic_module_1": {
+            "Statistic_1": {
+                "schemes": {
+                    "scheme_1": {
+                        "parameter_1": "parameter_1_value",
+                        "parameter_2": "parameter_2_value"
+                    },
+                    "scheme_2": {
+                        "parameter_1": "parameter_1_value",
+                        "parameter_2": "parameter_2_value",
+                        .,
+                        .,
+                        .,
+                        "parameter_n": "parameter_n_value"
+                    },
+                    .,
+                    .,
+                    .
+                    "scheme_n": {
+                        "parameter_1": "parameter_1_value",
+                        "parameter_2": "parameter_2_value",
+                        .,
+                        .,
+                        .
+                    }
+                }
+            },
+            "Statistic_2": {
+                .,
+                .,
+                .
+            },
+            .,
+            .,
+            .
+        },
+        "statistic_module_2": {
+            "Statistic_m": {
+                "schemes": {
+                    "scheme_1": {
+                        "parameter_1": "parameter_1_value",
+                        "parameter_2": "parameter_2_value",
+                        .,
+                        .,
+                        .
+                    },
+                    .,
+                    .,
+                    .
+                }
+                .,
+                .,
+                .
+            }
+        }
+        .,
+        .,
+        .
+    },
+    "Reducers": {
+        "reducer_module_1": {
+            "Reducer_1": {
+                "filters": [
+                    "statistic_module_1.Statistic_1.scheme_2",
+                    "statistic_module_2.Statistic_3.scheme_3",
+                    "¬statistic_module_3.*",
+                    .,
+                    .
+                ],
+                "schemes": {
+                    "scheme_1": {
+                        .,
+                        .,
+                        .
+                    },
+                .,
+                .,
+                .
+                }
+            }
+        },
+        .,
+        .,
+        .
+        "reducer_module_p": {
+            .,
+            .,
+            .
+        }
+    }
 }
 ```
 
-</details>
+#### Python Dictionary
 
-## Other highly comparative toolboxes 🧰
-If you are interested in trying other highly comparative toolboxes like _pyspi_, see the below list:
+Please see the JSON section above as Python dictionary objects follow the same structure. 
 
-- [_hctsa_](https://github.com/benfulcher/hctsa), the _highly comparative time-series analysis_ toolkit, computes over 7000 time-series features from univariate time series.
-- [_hcga_](https://github.com/barahona-research-group/hcga), a _highly comparative graph analysis_ toolkit, computes several thousands of graph features directly from any given network.
+#### Config Object
+
+The template configuration can be constructed through the *Config* object in two ways. We can 
+specify the configuration using reference names or by passing the desired objects directly.
+
+First, we demonstrate construction by reference:
+
+```python
+
+from pyss import Config
+
+my_cfg = Config("my_cfg")
+my_cfg.add_statistic_by_name(module_reference = "statistic_module_1",
+                             statistic_name = "Statistic_1",
+                             statistic_params = {
+                                 "parameter_1": "parameter_1_value",
+                                 "parameter_2": "parameter_2_value"
+                             },
+                             scheme_name = "scheme_1")
+
+my_cfg.add_statistic_by_name(module_reference = "statistic_module_1",
+                             statistic_name = "Statistic_1",
+                             statistic_params = {
+                                 "parameter_1": "parameter_1_value",
+                                 "parameter_2": "parameter_2_value",
+                                 .,
+                                 .,
+                                 .,
+                                 "parameter_n": "parameter_n_value"
+                             },
+                             scheme_name = "scheme_2")
+my_cfg.add_statistic_by_name(module_reference = "statistic_module_1",
+                             statistic_name = "Statistic_1",
+                             statistic_params = {
+                                 "parameter_1": "parameter_1_value",
+                                 "parameter_2": "parameter_2_value",
+                                 .,
+                                 .,
+                                 .
+                             },
+                             scheme_name = "scheme_n")
+my_cfg.add_statistic_by_name(module_reference = "statistic_module_1",
+                             statistic_name = "Statistic_2",
+                             .,
+                             .,
+                             .)
+
+my_cfg.add_statistic_by_name(module_reference = "statistic_module_2",
+                             statistic_name = "Statistic_m",
+                             statistic_params = {
+                                 "parameter_1": "parameter_1_value",
+                                 "parameter_2": "parameter_2_value",
+                                 .,
+                                 .,
+                                 .
+                             },
+                             scheme_name = "scheme_1")
+.
+.
+.                            
+
+my_cfg.add_reducer_by_name(module_reference = "reducer_module_1",
+                           reducer_name = "Reducer_1",
+                           reducer_params = {
+                               .,
+                               .,
+                               .
+                           },
+                           scheme_name = "scheme_1",
+                           statistic_filters = [
+                               "statistic_module_1.Statistic_1.scheme_2",
+                               "statistic_module_2.Statistic_3.scheme_1",
+                               "¬statistic_module_3.*"
+                           ])
+my_cfg.add_reducer_by_name(module_reference = "reducer_module_p",
+                           ...)
+
+```
+Next, we instead provide the objects directly:
+
+```python
+
+from pyss import Config
+from statistic_module_1 import Statistic_1, Statistic_2, ...
+from statistic_module_2 import Statistic_m, ...
+.
+.
+.
+from reducer_module_1 import Reducer_1, ...
+from reducer_module_p import ...
+
+# Add Statistic objects.
+
+my_cfg = Config("my_cfg")
+statistic_1_1 = Statistic_1(
+    parameter_1 = "parameter_1_value",
+    parameter_2 = "parameter_2_value")
+my_cfg.add_statistic(statistic = statistic_1_1, 
+                     scheme_name = "scheme_1")
+
+statistic_1_2 = Statistic_1(
+    parameter_1 = "parameter_1_value",
+    parameter_2 = "parameter_2_value",
+    .,
+    .,
+    .,
+    parameter_n = "parameter_n_value")
+my_cfg.add_statistic(statistic = statistic_1_2, 
+                     scheme_name = "scheme_2")
+
+statistic_1_n = Statistic_1(
+    parameter_1 = "parameter_1_value",
+    parameter_2 = "parameter_2_value",
+    .,
+    .,
+    .
+)
+my_cfg.add_statistic(statistic = statistic_1_n, 
+                     scheme_name = "scheme_n")
+
+statistic_2_1 = Statistic_2(...)
+my_cfg.add_statistic(statistic = statistic_2_1, 
+                     scheme_name = "scheme_1")
+
+statistic_m_1 = Statistic_m(
+    parameter_1 = "parameter_1_value",
+    parameter_2 = "parameter_2_value",
+    .,
+    .,
+    .
+)
+my_cfg.add_statistic(statistic = statistic_m_1, 
+                     scheme_name = "scheme_1")
+
+# Add Reducer objects.
+
+reducer_1_1 = Reducer_1(...)
+my_cfg.add_reducer(reducer = reducer_1_1, 
+                   scheme_name = "scheme_1", 
+                   statistic_filters = [
+                       "statistic_module_1.Statistic_1.scheme_2",
+                       "statistic_module_2.Statistic_3.scheme_1",
+                       "¬statistic_module_3.*"])
+.
+.
+.
+
+```
+
+### Helper Methods
+
+All *Components* classes possess a number of methods intended to assist users creating new 
+parameterisation schemes in their configurations. Examples include:
+
+- `get_parameters()`: Provides the parameters required a given *Component*. These can be looked 
+  up using the class name, *Component* name or *Component* identifier.
+- `get_output_shape()`: Provides the shape of the *numpy array* output by a given *Component* 
+  class. 
+- `generate_example()`: Returns an example of the result a *Component* object will produce. It can 
+  produce an example on user provided data or generate a random input dataset, providing both the 
+  input and output for inspection and comparison. 
+
+> For information on these methods, please see [PySS Components](#pyss-components).
+
+### Example
+
+To demonstrate the format required to construct a configuration, we will consider the 
+following example:
+
+We'll derive the following general statistics:
+
+- Statistic 1: EmpiricalCovariance [Output: $p \times p$ matrix]
+- Statistic 2: EllipticEnvelope [Output: $p \times p$ matrix]
+  - Variant: Squared
+- Statistic 3: PairwiseDistance [Output: $n \times n$ matrix]
+  - Variant: Euclidean
+- Statistic 4: InformationGeometricConditionalIndependence (ICGI) [Output: $n \times n$ matrix]
+  - Variant: Observations ($n$)
+- Statistic 5: InformationGeometricConditionalIndependence (ICGI) [Output: $p \times p$ matrix]
+  - Variant: Variables ($p$)
+
+And we'll apply the following reductions to these statistics:
+
+- Reducer 1: MatrixDeterminant [Output: $5$-vector]
+  - Variants: Scaled
+  - Statistics: All Except 5
+- Reducer 2: Moments [Output: $6$-vector ($3$ moments for $2$ statistics)]
+  - Selection: 1, 2, 4
+  - Statistics: 3, 5
+- Reducer 3: SchattenNorm [Output: $6$-vector ($3$ moments for $2$ statistics)]	
+  - Selected: 2
+  - Statistics: 1, 2
+
+And finally, we'll include the following fully reduced statistics:
+- ReducedStatistic 1: PCAVarianceExplained [Output: $2$-vector]
+  - Selection: First 2
+- ReducedStatistic 2: PCAEigenVectors [Output: $3p$-vector ($3$ loadings for $p$ variables)]
+  - Selection: First 3
+- ReducedStatistic 3: GaussianFit [Output: scalar]
+
+Total number of statistical summaries: $3p + 20$.
+
+Below we show how to construct this configuration in different formats.
+
+> - We use the NOT operator `¬` to create a negation on the *Statistics* filter for the *Reducer*
+    *Determinant*.
+> - We use the WILDCARD operator `*` to include all *Statistics* under the relevant umbrella.
 
 
-## Our Contributors 🌟
-We are thankful for the contributions of each and everyone who has helped make this project better. 
-Whether you've added a line of code, improved our documentation, or reported an issue, your contributions are greatly appreciated! 
-Below are some of the leading contributors to _pyspi_:
+#### YAML
 
-<a href="https://github.com/DynamicsAndNeuralSystems/pyspi/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=DynamicsAndNeuralSystems/pyspi" />
-</a>
+```yaml
+Statistics:
+	pyss.statistics.basic:
+		Covariance:
+			schemes:
+				empirical:
+					estimator: EmpiricalCovariance
+				elliptic-std:
+					squared: False
+				elliptic-sq:
+					squared: True
+					
+	pyss.statistics.distance:
+		PairwiseDistance:
+			schemes:
+				euclidean:
+					metric: euclidean
+	
+	pyss.statistics.causal:
+		InformationGeometricConditionalIndependence:
+			schemes:
+				observation-wise:
+					dim: n
+				variate-wise:
+					dim: p
+                    
+    pyss.rstatistics.basic:
+        PCAVarianceExplained:
+            schemes:
+                first-two:
+                    components:
+                        - 1
+                        - 2
+        PCAEigenVectors:
+            schemes:
+                first-three:
+                    vectors:
+                        - 1
+                        - 2
+                        - 3
+    pyss.rstatistics.model_fits:
+        GaussianFit:
+          schemes:
+              main:
 
-## License 🧾
-_pyspi_ is released under the [GNU General Public License](https://www.gnu.org/licenses/gpl-3.0).
+Reducers:
+	pyss.reducers.basic:
+		Determinant:
+			Statistics:
+				- ¬pyss.statistics.causal.InformationGeometricConditionalIndependence
+			schemes:
+				scaled_det:
+					scaled: True	
+		
+		Moment:
+			Statistics:
+				- pyss.statistics.basic.Covariance.elliptic-sq
+				- pyss.statistics.causal.InformationGeometricConditionalIndependence.variate-wise
+			schemes:
+				two-four:
+					moments:						
+						- 2
+						- 4					
+				
+	pyss.reducers.norms:
+		SchattenNorm:
+			Statistics:
+				- pyss.statistics.basic.*
+			schemes:
+				2-norm:
+					p: 2			
+				
+```
+
+#### JSON/Python Dictionary
+
+```json
+{
+	"Statistics": {
+		"pyss.statistics.basic": {
+			"Covariance": {
+				"schemes": {
+					"empirical": "estimator"
+				}
+			},
+			"EllipticEnvelope": {
+				"schemes": {
+					"standard": {
+						"squared": false
+					},
+					"sq": {
+						"squared": true
+					}
+				}
+			}
+		},
+		"pyss.statistics.distance": {
+			"PairwiseDistance": {
+				"schemes": {
+					"euclidean": {
+						"metric": "euclidean"
+					}
+				}
+			}
+		},
+		"pyss.statistics.causal": {
+			"InformationGeometricConditionalIndepedence": {
+				"schemes": {
+					"observation-wise": {
+						"dim": "n"
+					},
+					"variate-wise": {
+						"dim": "p"
+					}
+				}
+			}
+		},
+        "pyss.rstatistics.basic": {
+            "PCAVarianceExplained": {
+                "schemes": {
+                    "first_two": {
+                        "components": [1,2]
+                    }
+                }
+            },
+            "PCAEigenVectors": {
+                "schemes": {
+                    "first_three": {
+                        "n_vectors": [1,2,3]
+                    }
+                }
+            }
+        },
+        "pyss.rstatistics.model_fits": {
+            "GaussianFit": {
+                "schemes": {
+                    "base": null
+                }
+            }
+        }
+	},
+	"Reducers": {
+		"pyss.reducers.basic": {
+			"Determinant": {
+				"Statistics": [
+					"¬pyss.statistics.causal.InformationGeometricConditionalIndependence"
+				],
+				"schemes": {
+					"scaled_det": {
+						"scaled": true
+					}
+				}
+			},
+			"Moment": {
+				"Statistics": [
+					"pyss.statistics.basic.EllipticEnvelope.sq",
+					"pyss.statistics.causal.InformationGeometricConditionalIndependence.variate-wise"
+				],
+				"schemes": {
+					"first_three": {
+						"moments": [1,2,4]
+					}
+				}
+			}
+		},
+		"pyss.reducers.norms": {
+			"SchattenNorm": {
+				"Statistics": [
+					"pyss.statistics.basic.*"
+				],
+				"schemes": {
+					"2-norm": {
+						"p": 2
+					}
+				}
+			}
+		}
+	}
+}
+```
+
+#### Config
+
+```python
+
+from pyss import Config
+from pyss.statistics.basic import Covariance
+from pyss.statistics.distance import PairwiseDistance
+from pyss.statistics.causal import InformationGeometricConditionalIndependence
+from pyss.rstatistics.basic import PCAVarianceExplained, PCAEigenVectors
+from pyss.rstatistics.model_fits import GaussianFit
+
+from pyss.reducers.basic import Determinant, Moment
+from pyss.reducers.norms import SchattenNorm
+
+# Instantiate new config.
+my_cfg = Config("my_cfg")
+
+# Instantiate statistics.
+emp_cov = Covariance(estimator="EmpiricalCovariance", squared=False)
+elliptic_std = Covariance(estimator="EllipticEnvelope", squared=False)
+elliptic_sq = Covariance(estimator="EllipticEnvelope", squared=True)
+pw_dist = PairwiseDistance(metric="euclidean")
+igci_obs = InformationGeometricConditionalIndependence(dim="n")
+igci_var = InformationGeometricConditionalIndependence(dim="p")
+pca_var = PCAVarianceExplained(components = [1,2])
+pca_eigv = PCAEigenVectors(vectors = [1,2,3])
+gauss_fit = GaussianFit()
+
+# Gather.
+my_stats = {
+    "empirical": emp_cov,
+    "elliptic-std": elliptic_std,
+    "elliptic-sq": elliptic_sq,
+    "euclidean": pw_dist,
+    "observation-wise": igci_obs,
+    "variate-wise": igci_var,
+    "first-two": pca_var,
+    "first-three": pca_eigv,
+    "main": gauss_fit    
+}
+
+# Add to configuration.
+for scheme, stat in my_stats.items():
+    my_cfg.add_statistic(stat, scheme)
+
+
+# Instantiate reducers.
+scaled_det = Determinant(scaled = True)
+moments = Moment(moments = [2,4])
+sch_norm = SchattenNorm(p = 2)
+
+# Gather with filters.
+my_reducers = {
+    "scaled_det" : (
+        scaled_det, ["¬pyss.statistics.causal.InformationGeometricConditionIndependence"]
+    ),
+    "two-four": (
+        moments, [
+            "pyss.statistics.basic.Covariance.elliptic-sq",
+            "pyss.statistics.causal.InformationGeometricConditionalIndependence.variate-wise"
+        ]
+    ),
+    "2-norm": (
+        sch_norm, ["pyss.statistics.basic.*"]
+    )
+}
+
+# Add to configuration.
+for scheme, reducer_pair in my_reducers.items():
+    reducer, filters = reducer_pair
+    my_cfg.add_reducer(reducer, scheme, filters)
+
+```
+
+## Creating New Components
+
+> For further information on the underlying class structure for each of the *Component* classes, 
+please see [PySS Object Reference](#pyss-object-reference).
+
+Alike the main *Pipeline*, each component obeys a *Contract* which dictates the shape of the 
+data it accepts and returns. Creating new components consists of creating new classes that obey 
+that *Contract*. 
+
+Finally, your new *Component* must be registered either with a *Config* object for one time or 
+external use, or with the framework itself for repeated use.
+
+### Statistic
+
+In most cases, this will be the class you want to use as your basis. 
+
+#### Contract
+
+You will need to:
+1. Create a new subclass that inherits of the `Statistic` class.
+2. Implement the `name` *string* property, which should be unique among all *Statistic* 
+   classes within your module.
+3. Implement the `identifier` *string* property, which should be unique across the entire
+   _**PySS**_ framework.
+4. Implement the `labels` *list(string)* property.
+5. Implement the `compute` method satisfying the following requirements:
+   - Input: $n \times p$ *numpy array*.
+   - Output: 
+     - $p \times p$ *numpy array*. \
+        OR
+     - $n \times n$ *numpy array*.
+
+#### Template
+
+The following template provides a framework for implementing a new *Statistic*:
+
+```python
+import numpy as np
+from pyss import Statistic
+
+
+class MyNewStatistic(Statistic):
+
+    def __init__(self, *args, **kwargs):      
+      
+        # Your initialisation code here.
+        ...
+        
+        # Calling base class initialiser.
+        super().__init__()
+  
+    @property
+    def name(self) -> str:
+        return "my_new_statistic_name"
+
+    @property
+    def identifier(self) -> str:
+        return "my_new_statistic_identifier"
+
+    @property
+    def labels(self) -> list[str]:
+        return ["my_new_statistic_label_1",
+                "my_new_statistic_label_2",            
+                .
+                .
+                .
+                "my_new_statistic_label_n"]
+
+    def compute(self, data: np.ndarray) -> np.ndarray:
+        
+        # Calculating your statistic as a numpy array.
+        my_statistic = ...
+        
+        # Returning the result
+        return my_statistic
+```
+
+
+#### Example
+
+We provide an example from an existing PySS *Statistic* - the *PowerEnvelopeCorrelation*:
+
+```python
+# Importing numpy to use for type checking.
+import numpy as np
+
+# MNE-Connectivity open-source Python package (https://mne.tools/mne-connectivity/stable/index.html)
+import mne.connectivity as mnec
+
+# Importing Statistic base class from PySS.
+from pyss import Statistic
+
+
+class PowerEnvelopeCorrelation(Statistic):
+    # Setting the name internally.
+    __name = "Power Envelope Correlation"
+	
+    # Setting the identifier internally.
+    __identifier = "pec"
+	
+    # Setting the labels internally.
+    __labels = ["unsigned", "misc", "undirected"]
+	
+    def __init__(self, orth=False, log=False, absolute=False):
+
+        # If the orthogonal argument is provided...
+        if orth:
+            # Storing the orthogonal argument to use in the compute method.
+            self.__orth = "pairwise"
+
+            # Updating the identifier.
+            self.__identifier += "_orth"
+
+        # Otherwise, defaulting to False.
+        else:
+            self.__orth = False
+			
+        # Storing the log argument for use in the compute method.
+        self.__log = log
+
+        # If set...
+        if log:
+            # Updating the identifier.
+            self.__identifier += "_log"
+			
+        # Storing the absolute argument for use in the compute method.
+        self.__absolute = absolute
+		
+        # If set...
+        if absolute:
+            # Updating the identifier.
+            self.__identifier += "_abs"
+
+        # Calling the base class initialiser.
+        super().__init__()
+
+    # Implementing the name property.
+    @property
+    def name(self) -> str:
+        return self.__name
+	
+    # Implementing the identifier property.
+    @property
+    def identifier(self) -> str:
+        return self.__identifier
+
+    # Implementing the labels property.
+    @property
+    def labels(self) -> list[str]:
+        return self.__labels
+	
+    # Implementing the compute method.
+    # data: Full dataset with n observations, p variables as a numpy array.	
+    def compute(self, data: np.ndarray) -> np.ndarray:
+		
+        # Utilizing the envelop_correlation function provided by the MNE-Connectivity library.
+        env_corr = mnec.envelope_correlation(
+			
+            # Passing through the stored arguments from the initialiser.
+            data, orthogonalize=self.__orth, log=self.__log, absolute=self.__absolute
+        )
+		
+        # Squeezing the result to remove any excess dimensions.
+        adj = np.squeeze(env_corr)
+		
+        # Filling self/auto-correlations with NaNs.
+        np.fill_diagonal(adj, np.nan)
+
+        # Returning the p by p matrix as numpy array.
+        return adj 
+```
+
+### PairwiseStatistic
+
+The `PairwiseStatistic` class performs a paired iteration over the *Data* across the specified 
+dimension, providing all possible pairs as arguments to the `pairwise_compute` method that you 
+will implement. Therefore, a *PairwiseStatistic* should be used when the statistic is 
+computed for pairs of vectors within the dataset. Such statistics are typically performed on 
+variables but the framework supports iterating over observations as well.
+
+An example of such as a statistic is 
+[Spearman's rank correlation coefficient](https://en.wikipedia.org/wiki/Spearman%27s_rank_correlation_coefficient), 
+which is also the implementation we will use as an example later.
+
+#### Contract
+
+You will need to:
+1. Create a new class that inherits from the `PairwiseStatistic` class.
+2. Initialise the base `PairwiseStatistic` class, providing values for the arguments:
+   - `dim` (*string*): Specifies the dimension over which comparisons will take place. Options are 
+     `"n"` for observations and `"p"` for variables.
+   - `is_ordered` (*boolean*): Specifies whether input data should be ordered. Used for 
+     order-based statistics such as the [Wilcoxon signed rank test](https://en.wikipedia.org/wiki/Wilcoxon_signed-rank_test).
+3. Implement the `name` *string* property, which should be unique within the module containing
+   your class.
+4. Implement the `identifier` *string* property, which should be unique across the entire
+  _**PySS**_ framework.
+5. Implement the `labels` *list(string)* property.
+6. Implement the `pairwise_compute` method with the following requirements:
+   - Input:
+     - Two $n \times 1$ *numpy arrays* (observations). \
+       OR
+     - Two $p \times 1$ *numpy arrays* (variables).
+   - Output: 
+     - $1 \times 1$ *numpy array*. \
+       OR
+     - *float* scalar.
+
+#### Template
+
+The following template provides a framework for implementing a new *PairwiseStatistic*:
+
+```python
+import numpy as np
+
+from pyss import PairwiseStatistic
+from typing import Union
+
+
+class MyNewOrderedPairwiseStatistic(PairwiseStatistic):
+
+    def __init__(self, *args, **kwargs):      
+      
+        # Your initialisation code here.
+        ...
+        
+        # Calling base class initialiser with iteration over variables and ordering required.
+        super().__init__(dim="p", is_ordered=True)
+  
+    @property
+    def name(self) -> str:
+        return "my_new_statistic_name"
+
+    @property
+    def identifier(self) -> str:
+        return "my_new_statistic_identifier"
+
+    @property
+    def labels(self) -> list[str]:
+        return ["my_new_statistic_label_1",
+                "my_new_statistic_label_2",
+                .
+                .
+                .
+                "my_new_statistic_label_n"]
+
+    def pairwise_compute(self, 
+                         x: np.ndarray,
+                         y: np.ndarray) -> Union[np.ndarray, float]:
+        
+        # Calculating your statistic as a singleton numpy array or float scalar.
+        my_statistic = ...
+        
+        # Returning the result
+        return my_statistic
+
+```
+
+#### Example
+
+We provide an example from an existing PySS *Statistic* - the *SpearmanR*:
+
+```python
+import scipy as sp
+import numpy as np
+
+from typing import Union
+
+from pyss import PairwiseStatistic
+
+
+class SpearmanR(PairwiseStatistic):
+    # Setting the name internally.
+    __name = "Spearman's correlation coefficient"
+  
+    # Setting the identifier internally.
+    __identifier = "spearmanr"
+    
+    # Setting the labels internally.
+    __labels = ["basic", "rank", "linear", "undirected"]
+
+    def __init__(self, squared: bool):
+        
+        # Storing the squared argument.
+        self.__squared = squared
+
+        # If squared, 
+        if squared:
+          
+            # Adding the "unsigned" label.
+            self.__labels += ["unsigned"]
+          
+            # Adding the ".sq" suffix to the identifier.
+            self.__identifier += ".sq"
+            
+        else:
+          
+            # Else, adding the "signed" label.
+            self.__labels += ["signed"]
+        
+        # Calling the base class initialiser with required arguments.
+        super().__init__(dim="p",
+                         is_ordered=False)
+
+    # Implementing the name property.
+    @property
+    def name(self) -> str:
+        return self.__name
+
+    # Implementing the identifier property.
+    @property
+    def identifier(self) -> str:
+        return self.__identifier
+
+    # Implementing the labels property.
+    @property
+    def labels(self) -> list[str]:
+        return self.__labels
+
+    # Implementing the PairwiseStatistic's pairwise_compute method.
+    # Arguments:
+    #  - x: A given observation as an n x 1 numpy array OR a given variable as a p x 1 numpy array.
+    #  - y: A given observation as an n x 1 numpy array OR a given variable as a p x 1 numpy array.
+    def pairwise_compute(self,
+                          x: np.ndarray,
+                          y: np.ndarray) -> Union[np.ndarray, float]:
+
+        # Computing the Spearman rank correlation coefficient using Scipy library.
+        corr = sp.stats.spearmanr(x, y).correlation
+
+        # Squaring results if required.
+        if self.__squared:          
+            return corr ** 2
+
+        # Returning value.
+        return corr
+
+```
+
+### ReducedStatistic
+
+#### Contract
+
+#### Template
+
+### Reducer
+
+The main responsibility of the *Reducer* is to perform dimensionality reduction on multivariate 
+statistical outputs from the *Statistic* object.
+
+#### Contract
+
+You will need to:
+1. Create a new subclass that inherits of the `Reducer` class.
+2. Implement the `name` *string* property, which should be unique among all *Reducer* classes 
+   within your module.
+3. Implement the `identifier` *string* property, which should be unique among all objects across 
+   the entire _**PySS**_ framework.
+4. Implement the `labels` *list(string)* property.
+5. Implement the `compute` method satisfying the following requirements:
+   - Input: 
+     - $p \times p$ *numpy array*. \
+        OR
+     - $n \times n$ *numpy array*.
+   - Output:
+     - $m \times 1$ *numpy array* such that $m < \min(n^2,p^2)$ \
+        OR
+     - *float* scalar.
+
+#### Template
+
+The following template provides a framework for implementing a new *Reducer*:
+
+```python
+import numpy as np
+
+from pyss import Reducer
+from typing import Union
+
+
+class MyNewReducer(Reducer):
+    
+    def __init__(self, *args, **kwargs):
+        
+        # Your initialisation code here.
+        ...
+    
+        # Calling base class initialiser.
+        super().__init__()
+        
+    @property
+    def name(self) -> str:
+        return "my_new_reducer_name"
+    
+    @property
+    def identifier(self) -> str:
+        return "my_new_reducer_identifier"
+    
+    @property
+    def labels(self) -> list[str]:
+        return ["my_new_reducer_label_1",
+                "my_new_reducer_label_2",
+                .
+                .
+                .
+                "my_new_reducer_label_n"]
+    
+    def compute(self, data: np.ndarray) -> Union[np.ndarray, float]:
+        
+        # Calculating your reducer as a reduced numpy array or float scalar.
+        my_reducer = ...
+        
+        # Returning the result
+        return my_reducer
+
+```
+
+#### Example
+
+We provide an example from an existing PySS *Reducer* - the *SchattenNorm*:
+
+```python
+import numpy as np
+
+from pyss import Reducer
+
+
+class SchattenNorm(Reducer):
+
+    # Setting the name internally.
+    __name = "Schatten Norm"
+
+    # Setting the identifier internally.
+    __identifier = "sch-norm"
+
+    # Setting the labels internally.
+    __labels = ["scalar"]
+
+    def __init__(self, p: int):
+        
+        # Storing the p-norm argument.
+        self.__p = p
+        
+        # Calling the base class initialiser with required arguments.
+        super().__init__()
+        
+    # Implementing the name property.
+    @property
+    def name(self) -> str:
+        return self.__name
+    
+    # Implementing the identifier property.
+    @property
+    def identifier(self) -> str:
+        return self.__identifier
+    
+    # Implementing the labels property.
+    @property
+    def labels(self) -> list[str]:
+        return self.__labels
+
+    # Implementing the compute method.
+    # Arguments:
+    #   - data: Statistic output data as an n x n OR p x p numpy array.
+    def compute(self, data: np.ndarray) -> np.ndarray:
+        
+        # Computing the singular values.
+        svs = np.linalg.svd(data, compute_uv=False)
+        
+        # Raising to the power of p and sum.
+        svs_power_sum = (svs**self.__p).sum()
+        
+        # Returning the pth root of the sum.
+        return svs_power_sum**(1 / self.__p)
+
+```
+
+### Registering the Component
+
+Once your new *Component* is complete, it can be utilized in a configuration with just a few 
+lines of code. For example, the following code adds a *Statistic* called `MyStatistic` and a 
+*Reducer* called `MyReducer` to an *Config* object with appropriate arguments:
+
+```python
+from pyss import Config
+from my_module import MyStatistic, MyReducer
+
+my_statistic = MyStatistic(*my_statistic_args, **my_statistic_kwargs)
+my_reducer = MyReducer(*my_reducer_args, **my_reducer_kwargs)
+my_config = Config.from_yaml_file("my_config", "/path/to/my/file.yaml")
+
+my_config.add_statistic(my_statistic, "my_statistic_scheme_1")
+my_config.add_reducer(my_reducer, "my_reducer_scheme_1")
+
+```
+
+The inclusion of your new *Components* can be persisted by generating a configuration file from 
+the `my_config` object as follows:
+
+```python
+my_config.export_yaml("/path/to/my/new_file.yaml")
+```
+
+The *Component* will now be included in the YAML file output.
+
+**NOTE**: The containing module `my_module` will be referred to by its **full path** in the 
+configuration file. Therefore, changing the location of the module file will break the reference 
+and the PySS framework will be unable to include your *Components* when executing the configuration.
+
+For more details on configurations including their construction, module referencing or file 
+formats, see the [Configurations](#configurations) section.
+
+# PySS Components
+
+## Statistics
+
+### pyss.statistics.basic
+
+#### Covariance
+
+- Type: `Statistic`
+- Parameters:
+  - `estimator (str)`: Dictates the type of covariance estimation applied to the *Data*.
+    - `EmpiricalCovariance`: 
+    - `Elliptic`
+
+#### SpearmanR
+
+- Type: `PairwiseStatistic`
+- Parameters:
+  - `squared (bool)`: Dictates whether results are squared after computation. Standard 
+	(non-squared) results will retain the directionality of the pairwise comparison.
+
+#### KendallTau
+
+### pyss.statistics.causal
+
+### pyss.statistics.distance
+
+### pyss.statistics.misc
+
+## Reducers
+
+### pyss.reducers.basic
+
+### pyss.reducers.norms
+
+### pyss.reducers.graph
+
+## ReducedStatistics
+
+### pyss.rstatistics.basic
+
+### pyss.rstatistics.model_fits
+
+# PySS Object Reference
+
+## Component
+
+- Parent: `object`
+- Children: `Statistic`, `Reducer`
+- Constructor Signature: `a`
+- Concrete Methods:
+  - `calculate`
+    - `data`: `numpy array`
+- Abstract Methods
+
+## Statistic
+
+- Parent: `Component`
+- Children: `PairwiseStatistic`, `ReducedStatistic`
+- Constructor Signature
+- Concrete Methods
+- Abstract Methods
+
+## Reducer
+
+- Parent: `Component`
+- Constructor Signature:
+- Concrete Methods:
+- Abstract Methods
+
+## Calculator
+
+- Parent: `object`
+- Constructor Signature:
+- Concrete Methods:
+- Abstract Methods
+
+## Config
+
+- Parent: `object`
+- Constructor Signature:
+- Concrete Methods:
+- Abstract Methods

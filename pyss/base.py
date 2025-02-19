@@ -20,7 +20,8 @@ IGNORE_IMPORT_WARNINGS = False
 
 # URLs
 PYSS_GITHUB_ISSUES_URL = "https://github.com/garry-cotton/pyss/issues/"
-CUSTOM_COMPONENTS_URL = ""
+CUSTOM_COMPONENTS_URL = "https://github.com/garry-cotton/pyss/blob/main/README.md"
+STATISTIC_FILTERING_URL = ""
 
 class Component(ABC):
 

@@ -180,7 +180,7 @@ class Config:
         if not is_valid_config:
             raise ValueError("At least one of the following argument inputs are required to produce a valid configuration\n"
                              " - statistic_archetypes and reducer_archetypes must be provided.\n"
-                             " - reduced_statistic_archetypes must be provided.")        
+                             " - reduced_statistic_archetypes must be provided.")
         
         instance = cls(name)
         component_dirs = ["statistics", "reducers", "rstatistics"]
@@ -203,7 +203,8 @@ class Config:
         if instance.reduced_statistics:
             return instance
 
-        raise ValueError("The selected archetypes did not result in a valid configuration. Please report the issue to " + pyb.PYSS_GITHUB_ISSUES_URL)    
+        raise ValueError("The selected archetypes did not result in a valid configuration. "
+                         "Please report the issue to " + pyb.PYSS_GITHUB_ISSUES_URL)
 
     @staticmethod
     def __get_components_from_module(module: Union[ModuleType, Namespace]) -> Generator[Component]:
@@ -232,7 +233,7 @@ class Config:
 
         Arguments:
             name (string): A reference name for the configuration.
-            config_dict (dict): A Python dictionary object representing a valid configuration.
+            config_dict (dictionary): A Python dictionary object representing a valid configuration.
         """
         instance = cls(name)
         print("Registering configuration dictionary object.")
@@ -247,7 +248,7 @@ class Config:
 
         Arguments:
             name (string): A reference name for the configuration.
-            json_file_path (str): A file path pointing to a valid configuration in JSON format.
+            json_file_path (string): A file path pointing to a valid configuration in JSON format.
         """
         instance = cls(name)
         print("Registering YAML configuration file: {}.".format(json_file_path))
@@ -264,10 +265,12 @@ class Config:
         Adds a new Statistic to the configuration.
 
         Arguments:
-
+            statistic (Statistic): A Statistic object to add to the configuration.
+            scheme_name (string): A unique name for the scheme attached to the object.
         """
 
-        self.__add_component(statistic, Statistic, scheme_name)
+        component_archetype = ReducedStatistic if isinstance(statistic, ReducedStatistic) else Statistic
+        self.__add_component(statistic, component_archetype, scheme_name)
 
     def add_statistic_by_name(self,
                               module_reference: str,
@@ -277,6 +280,16 @@ class Config:
                               refresh_module: bool = False):
         """
         Adds a new Statistic to the configuration based on the specified name and configuration parameters.
+
+        Arguments:
+            module_reference (string): A reference to the module containing the Statistic class.
+                The following formats are supported:
+                    - Dot format for internal PySS modules (ie. "pyss.statistics.basic")
+                    - File path (ie. "/path/to/my/module.py")
+            statistic_name (string): Name of the Statistic class.
+            statistic_params (dictionary): A dictionary of parameters for instantiating the Statistic object.
+            scheme_name (string): A unique name for the scheme attached to the object.
+            refresh_module (bool): If set to true, PySS will reimport the module if already loaded (default: False).
         """
 
         component = self.__get_component_by_name(module_reference,
@@ -285,15 +298,72 @@ class Config:
                                                  statistic_params,
                                                  scheme_name,
                                                  refresh_module)
+        
+        if not component:
+            return
+        
         statistic = cast(Statistic, component)
         self.add_statistic(statistic, scheme_name)
+
+    def add_reduced_statistic(self,
+                              reduced_statistic: ReducedStatistic,
+                              scheme_name: str):
+        """
+        Adds a new ReducedStatistic to the configuration.
+
+        Arguments:
+            reduced_statistic (ReducedStatistic): A ReducedStatistic object to add to the configuration.
+            scheme_name (string): A unique name for the scheme attached to the object.
+        """        
+        
+        self.__add_component(reduced_statistic, ReducedStatistic, scheme_name)
+
+    def add_reduced_statistic_by_name(self,
+                                      module_reference: str,
+                                      reduced_statistic_name: str,
+                                      reduced_statistic_params: dict,
+                                      scheme_name: str,
+                                      refresh_module: bool = False):
+        
+        """
+        Adds a new ReducedStatistic to the configuration based on the specified name and configuration parameters.
+
+        Arguments:
+            module_reference (string): A reference to the module containing the ReducedStatistic class.
+                The following formats are supported:
+                    - Dot format for internal PySS modules (ie. "pyss.rstatistics.basic")
+                    - File path (ie. "/path/to/my/module.py")
+            reduced_statistic_name (string): Name of the ReducedStatistic class.
+            reduced_statistic_params (dictionary): A dictionary of parameters for instantiating the ReducedStatistic object.
+            scheme_name (string): A unique name for the scheme attached to the object.
+            refresh_module (bool): If set to true, PySS will reimport the module if already loaded (default: False).
+        """        
+        
+        component = self.__get_component_by_name(module_reference,
+                                                 Statistic,
+                                                 reduced_statistic_name,
+                                                 reduced_statistic_params,
+                                                 scheme_name,
+                                                 refresh_module)
+        
+        if not component:
+            return
+            
+        rstatistic = cast(ReducedStatistic, component)
+        self.add_reduced_statistic(rstatistic, scheme_name)
 
     def add_reducer(self,
                     reducer: Reducer,
                     scheme_name: str,
                     statistic_filters: Union[None, str, Iterable[str]] = None):
-        """
+        f"""
         Adds a new Reducer to the configuration.
+
+        Arguments:
+            reducer (Reducer): A Reducer object to add to the configuration.
+            scheme_name (string): A unique name for the scheme attached to the object.
+            statistic_filters (str, Iterable(str)) (default: None): A set of filters, restricting the application of the Reducer
+                to specific Statistics within the configuration. Please see  for more information.
         """
 
         self.__add_component(reducer, Reducer, scheme_name)
@@ -310,6 +380,16 @@ class Config:
                             refresh_module: bool = False):
         """
         Adds a new Reducer to the configuration based on the specified name and configuration parameters.
+
+        Arguments:
+            module_reference (string): A reference to the module containing the Reducer class.
+                The following formats are supported:
+                    - Dot format for internal PySS modules (ie. "pyss.reducers.basic")
+                    - File path (ie. "/path/to/my/module.py")
+            reducer_name (string): Name of the Reducer class.
+            reducer_params (dictionary): A dictionary of parameters for instantiating the Reducer object.
+            scheme_name (string): A unique name for the scheme attached to the object.
+            refresh_module (bool): If set to true, PySS will reimport the module if already loaded (default: False).
         """
 
         component = self.__get_component_by_name(module_reference,
@@ -318,6 +398,10 @@ class Config:
                                                  reducer_params,
                                                  scheme_name,
                                                  refresh_module)
+        
+        if not component:            
+            return
+        
         reducer = cast(Reducer, component)
         self.add_reducer(reducer, scheme_name, statistic_filters)
 
@@ -355,6 +439,19 @@ class Config:
 
     def remove_statistic_by_name(self, module_reference: str, statistic_name: str, scheme_name: str):
         self.__remove_component_by_name(Statistic, module_reference, statistic_name, scheme_name)
+
+    def remove_reduced_statistic(self, reduced_statistic: ReducedStatistic):
+        self.__remove_component(reduced_statistic, ReducedStatistic)
+
+    def remove_reduced_statistic_by_name(self, 
+                                         module_reference: str, 
+                                         reduced_statistic_name: str, 
+                                         scheme_name: str):
+        
+        self.__remove_component_by_name(ReducedStatistic, 
+                                        module_reference, 
+                                        reduced_statistic_name, 
+                                        scheme_name)
 
     def remove_reducer(self, reducer: Reducer):
         reducer = self.__remove_component(reducer, Reducer)
@@ -421,12 +518,15 @@ class Config:
 
         result = self.__config_scheme[component_archetype_name].pop(full_instance_name, None)
 
-        if result:
-            component_type_name = type(result).__name__
-            scheme_name = result.scheme
-            print(f"  {component_archetype_name} {component_type_name} scheme '{scheme_name}' "
-                  f"removed successfully.")
-            return result
+        if not result:
+            warnings.warn(f"The {component_archetype_name} {component_type_name} was not found in the configuration.")
+            return
+        
+        component_type_name = type(result).__name__
+        scheme_name = result.scheme
+        print(f"  {component_archetype_name} {component_type_name} scheme '{scheme_name}' "
+                f"removed successfully.")
+        return result
 
     def to_yaml(self):
         statistics = self.statistics.values()
@@ -442,6 +542,10 @@ class Config:
             return
         
         reduced_statistics = self.reduced_statistics.values()
+
+        if not reduced_statistics:
+            warnings.warn("No ReducedStatistics have been loaded. Skipping.")
+            return        
 
         yaml_dict = {
             "Statistics": dict(),
@@ -508,21 +612,29 @@ class Config:
         print(f"Building internal configuration.")
         stats_spec = self.__get_config_top_level("Statistics")
         reducers_spec = self.__get_config_top_level("Reducers")
-        self.__build_config_scheme(stats_spec, reducers_spec)
+        rstats_spec = self.__get_config_top_level("ReducedStatistics")
+
+        if False:
+            raise ValueError(f"Configuration is missing required definition for {level_name}.")
+
+        self.__build_config_scheme(stats_spec, reducers_spec, rstats_spec)
 
     def __get_config_top_level(self, level_name: str):
         level_dict = self.__config_dict.get(level_name)
 
         if not level_dict:
-            raise ValueError(f"Configuration is missing required definition for {level_name}.")
+            return
 
         pyb.check_type(level_dict,
-                   dict,
-                   custom_error_msg=f"Configuration contains incorrect format for {level_name} definition.")
+                       dict,
+                       custom_error_msg=f"Configuration contains incorrect format for {level_name} definition.")
 
         return {module.lower(): component_config for module, component_config in level_dict.items()}
 
-    def __build_config_scheme(self, stats_spec: dict, reducers_spec: dict):
+    def __build_config_scheme(self, 
+                              stats_spec: dict, 
+                              reducers_spec: dict,
+                              rstats_spec: dict):
 
         # Get instantiated Statistics based on configuration
         stats_generator = self.__yield_instantiated_components(Statistic, stats_spec)
@@ -530,6 +642,13 @@ class Config:
         # Store each Statistic
         for stat, scheme_name, _ in stats_generator:
             self.__add_component(stat, Statistic, scheme_name)
+
+        # Get instantiated ReducedStatistics based on configuration
+        rstats_generator = self.__yield_instantiated_components(ReducedStatistic, rstats_spec)
+
+        # Store each ReducedStatistic
+        for rstat, scheme_name, _ in rstats_generator:
+            self.__add_component(rstat, ReducedStatistic, scheme_name)
 
         # Get instantiated Reducers based on configuration
         reducers_generator = self.__yield_instantiated_components(Reducer, reducers_spec)

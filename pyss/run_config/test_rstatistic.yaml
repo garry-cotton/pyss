@@ -1,0 +1,8 @@
+ReducedStatistics:
+  pyss.rstatistics.basic:
+    PCAVarianceExplainedRatio:
+      schemes:
+        std:
+          components:
+            - 2
+            - 4
