@@ -2,7 +2,7 @@ import numpy as np
 
 from typing import Literal, Union
 
-from pyss.reducer import Reducer
+from pyspoc.reducer import Reducer
 
 
 class Norm(Reducer):

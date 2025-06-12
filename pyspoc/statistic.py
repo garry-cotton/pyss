@@ -12,11 +12,11 @@ from abc import abstractmethod, ABC
 from typing import Union, TYPE_CHECKING
 from pathlib import Path
 
-from pyss.base import Component
-from pyss.reducer import Reducer
+from pyspoc.base import Component
+from pyspoc.reducer import Reducer
 
 if TYPE_CHECKING:
-    from pyss.dataset import Dataset
+    from pyspoc.dataset import Dataset
 
 class Statistic(Component, ABC):
 

@@ -7,10 +7,10 @@ import gc
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
 
-from pyss.base import Component
+from pyspoc.base import Component
 
 if TYPE_CHECKING:
-    from pyss.statistic import Statistic
+    from pyspoc.statistic import Statistic
 
 
 class Reducer(Component, ABC):

@@ -8,9 +8,9 @@ from tqdm import tqdm
 from typing import Union, Iterable, Any
 
 # From this package
-from pyss.dataset import Dataset
-from pyss.config import Config
-from pyss.statistic import Statistic, ReducedStatistic
+from pyspoc.dataset import Dataset
+from pyspoc.config import Config
+from pyspoc.statistic import Statistic, ReducedStatistic
 
 
 class Calculator:

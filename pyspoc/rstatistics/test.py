@@ -1,7 +1,7 @@
 import numpy as np
 
-from pyss.statistic import ReducedStatistic
-from pyss.statistics.basic import Covariance
+from pyspoc.statistic import ReducedStatistic
+from pyspoc.statistics.basic import Covariance
 
 class ReducedCovarianceTest(Covariance, ReducedStatistic):    
         

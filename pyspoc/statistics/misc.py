@@ -7,7 +7,7 @@ from sklearn.metrics import mean_squared_error
 from sklearn import linear_model
 import mne.connectivity as mnec
 
-from pyss.statistic import Statistic, PairwiseStatistic
+from pyspoc.statistic import Statistic, PairwiseStatistic
 
 
 class LinearModel(PairwiseStatistic):

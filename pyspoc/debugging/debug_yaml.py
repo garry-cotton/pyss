@@ -4,7 +4,7 @@ import inspect
 
 import importlib
 import importlib.resources as imp_resources
-from pyss import reducers
+from pyspoc import reducers
 
 
 test_file = "C:/Users/Garry/Research Projects/pyss/pyss/run_config/testing.yaml"

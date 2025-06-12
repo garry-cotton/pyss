@@ -13,7 +13,7 @@ from abc import ABC, abstractmethod
 from textwrap import dedent
 
 if TYPE_CHECKING:
-    from pyss.config import Config
+    from pyspoc.config import Config
 
 # GLOBAL SETTINGS
 IGNORE_IMPORT_WARNINGS = False

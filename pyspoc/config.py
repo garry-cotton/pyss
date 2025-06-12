@@ -14,9 +14,9 @@ from types import ModuleType
 from runpy import run_path
 from argparse import Namespace
 
-from pyss.base import Component
-from pyss.statistic import Statistic, ReducedStatistic
-from pyss.reducer import Reducer
+from pyspocbase import Component
+from pyspoc.statistic import Statistic, ReducedStatistic
+from pyspoc.reducer import Reducer
 
 class Config:
 

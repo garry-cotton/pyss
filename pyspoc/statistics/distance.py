@@ -9,7 +9,7 @@ from hyppo.independence import (
     Hsic,
 )
 
-from pyss.statistic import Statistic, PairwiseStatistic
+from pyspoc.statistic import Statistic, PairwiseStatistic
 
 
 class PairwiseDistance(Statistic):

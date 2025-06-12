@@ -67,7 +67,7 @@ As an example, the following code will produce results using the *fast* configur
 *my_dataset* provided by the user, stored in the *results* variable:
 
 ```python
-from pyss import Calculator, Config
+from pyspoc import Calculator, Config
 
 my_dataset = ...
 cfg = Config.from_internal("fast")
@@ -91,7 +91,7 @@ The following code snippet uses a YAML configuration file with the following det
 - **Name:** "new_config"
 
 ```python
-from pyss import Calculator, Config
+from pyspoc import Calculator, Config
 
 my_dataset = ...
 my_yaml_file_path = "C:/configs/my_yaml_config.yaml"
@@ -109,7 +109,7 @@ The following code snippet uses a JSON configuration file with the following det
 - **Name:** "new_config"
 
 ```python
-from pyss import Calculator, Config
+from pyspoc import Calculator, Config
 
 my_dataset = ...
 my_json_file_path = "C:/configs/my_json_config.json"
@@ -127,7 +127,7 @@ Finally, a Python dictionary can be provided instead with the following details:
 - **Name:** "new_config"
 
 ```python
-from pyss import Calculator, Config
+from pyspoc import Calculator, Config
 
 my_dataset = ...
 my_config_dict = {
@@ -778,7 +778,7 @@ First, we demonstrate construction by reference:
 
 ```python
 
-from pyss import Config
+from pyspoc import Config
 
 my_cfg = Config("my_cfg")
 my_cfg.add_statistic_by_name(module_reference = "statistic_module_1",
@@ -851,7 +851,7 @@ Next, we instead provide the objects directly:
 
 ```python
 
-from pyss import Config
+from pyspoc import Config
 from statistic_module_1 import Statistic_1, Statistic_2, ...
 from statistic_module_2 import Statistic_m, ...
 .
@@ -1165,15 +1165,15 @@ Reducers:
 
 ```python
 
-from pyss import Config
-from pyss.statistics.basic import Covariance
-from pyss.statistics.distance import PairwiseDistance
-from pyss.statistics.causal import InformationGeometricConditionalIndependence
-from pyss.rstatistics.basic import PCAVarianceExplained, PCAEigenVectors
-from pyss.rstatistics.model_fits import GaussianFit
+from pyspoc import Config
+from pyspoc.statistics.basic import Covariance
+from pyspoc.statistics.distance import PairwiseDistance
+from pyspoc.statistics.causal import InformationGeometricConditionalIndependence
+from pyspoc.rstatistics.basic import PCAVarianceExplained, PCAEigenVectors
+from pyspoc.rstatistics.model_fits import GaussianFit
 
-from pyss.reducers.basic import Determinant, Moment
-from pyss.reducers.norms import SchattenNorm
+from pyspoc.reducers.basic import Determinant, Moment
+from pyspoc.reducers.norms import SchattenNorm
 
 # Instantiate new config.
 my_cfg = Config("my_cfg")
@@ -1273,7 +1273,7 @@ The following template provides a framework for implementing a new *Statistic*:
 
 ```python
 import numpy as np
-from pyss import Statistic
+from pyspoc import Statistic
 
 
 class MyNewStatistic(Statistic):
@@ -1324,8 +1324,8 @@ import numpy as np
 # MNE-Connectivity open-source Python package (https://mne.tools/mne-connectivity/stable/index.html)
 import mne.connectivity as mnec
 
-# Importing Statistic base class from PySS.
-from pyss import Statistic
+# Importing Statistic base class from pyspoc.
+from pyspoc import Statistic
 
 
 class PowerEnvelopeCorrelation(Statistic):
@@ -1450,7 +1450,7 @@ The following template provides a framework for implementing a new *PairwiseStat
 ```python
 import numpy as np
 
-from pyss import PairwiseStatistic
+from pyspoc import PairwiseStatistic
 from typing import Union
 
 
@@ -1503,7 +1503,7 @@ import numpy as np
 
 from typing import Union
 
-from pyss import PairwiseStatistic
+from pyspoc import PairwiseStatistic
 
 
 class SpearmanR(PairwiseStatistic):
@@ -1611,7 +1611,7 @@ The following template provides a framework for implementing a new *Reducer*:
 ```python
 import numpy as np
 
-from pyss import Reducer
+from pyspoc import Reducer
 from typing import Union
 
 
@@ -1659,7 +1659,7 @@ We provide an example from an existing PySS *Reducer* - the *SchattenNorm*:
 ```python
 import numpy as np
 
-from pyss import Reducer
+from pyspoc import Reducer
 
 
 class SchattenNorm(Reducer):
@@ -1719,7 +1719,7 @@ lines of code. For example, the following code adds a *Statistic* called `MyStat
 *Reducer* called `MyReducer` to an *Config* object with appropriate arguments:
 
 ```python
-from pyss import Config
+from pyspoc import Config
 from my_module import MyStatistic, MyReducer
 
 my_statistic = MyStatistic(*my_statistic_args, **my_statistic_kwargs)

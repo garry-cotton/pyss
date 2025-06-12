@@ -1,5 +1,5 @@
 import numpy as np
 
-from pyss import Statistic
+from pyspoc import Statistic
 
 mod = Statistic.available_statistics()

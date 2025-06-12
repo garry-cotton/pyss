@@ -15,9 +15,9 @@ from scipy.signal import detrend
 from typing import Iterable, Union
 from time import time
 
-from pyss import base
-from pyss import settings
-from pyss.statistic import Statistic
+from pyspoc import base
+from pyspoc import settings
+from pyspoc.statistic import Statistic
 
 
 class Dataset:

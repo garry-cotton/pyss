@@ -5,7 +5,7 @@ import scipy as sp
 from sklearn import covariance as skcov
 from typing import Union
 
-from pyss.statistic import Statistic, PairwiseStatistic
+from pyspoc.statistic import Statistic, PairwiseStatistic
 
 
 class Covariance(Statistic):

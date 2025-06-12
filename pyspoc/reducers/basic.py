@@ -1,7 +1,7 @@
 import numpy as np
 import scipy.stats as sp
 
-from pyss.reducer import Reducer
+from pyspoc.reducer import Reducer
 
 
 class Moment(Reducer):

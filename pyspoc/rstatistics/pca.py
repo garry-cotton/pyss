@@ -5,8 +5,8 @@ import numpy as np
 from sklearn.decomposition import PCA
 from abc import ABC
 
-from pyss import ReducedStatistic
-from pyss.dataset import Dataset
+from pyspoc import ReducedStatistic
+from pyspoc.dataset import Dataset
 
 class PCABase(ReducedStatistic, ABC):
 
