@@ -8,7 +8,7 @@ from pyspoc.config import Config
 #print(cfg.to_yaml())
 
 yaml = """Statistics:
-  pyss.statistics.basic:
+  pyspoc.statistics.basic:
     Covariance:
       schemes:
         std:
@@ -19,7 +19,7 @@ yaml = """Statistics:
         std:
           squared: false
           estimator: EmpiricalCovariance
-  pyss.statistics.causal:
+  pyspoc.statistics.causal:
     AdditiveNoiseModel:
       schemes:
         std: 
@@ -30,7 +30,7 @@ yaml = """Statistics:
       schemes:
         std:
 Reducers:
-  pyss.reducers.basic:
+  pyspoc.reducers.basic:
     Moment:
       schemes:
         std:

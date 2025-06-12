@@ -1,6 +1,6 @@
 Statistics:
 # Pearson and Spearman correlation statistics
-  pyss.statistics.basic:
+  pyspoc.statistics.basic:
     # Covariance
     Covariance:
       schemes:
@@ -26,10 +26,10 @@ Statistics:
           squared: False
 
 Reducers:
-  pyss.reducers.basic:
+  pyspoc.reducers.basic:
     SingularValues:
       Statistics:
-        - pyss.statistics.basic.Covariance.cov
+        - pyspoc.statistics.basic.Covariance.cov
       schemes:
         three:
           num_values: 3
@@ -39,7 +39,7 @@ Reducers:
 
     Determinant:
       Statistics:
-        - pyss.statistics.basic.SpearmanR.*
+        - pyspoc.statistics.basic.SpearmanR.*
       schemes:
         scaled:
           scaled: True

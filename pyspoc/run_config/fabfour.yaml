@@ -1,6 +1,6 @@
 Statistics:
 # Pearson and Spearman correlation statistics
-  pyss.statistics.basic:
+  pyspoc.statistics.basic:
     # Covariance
     Covariance:
       schemes:
@@ -14,7 +14,7 @@ Statistics:
           squared: True
 
 # Directed information with a Gaussian density estimator
-  pyss..statistics.misc:
+  pyspoc..statistics.misc:
     LinearModel:    
       schemes:
         gaussian:
@@ -29,14 +29,14 @@ Statistics:
           absolute: False
 
 Reducers:
-  pyss.reducers.basic:
+  pyspoc.reducers.basic:
     SingularValues:
       schemes:
         four:
           num_values: 4
 
 
-  pyss.reducers.norms:
+  pyspoc.reducers.norms:
     SchattenNorm:
       schemes:
         p-4:

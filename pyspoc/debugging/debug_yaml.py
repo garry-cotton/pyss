@@ -7,7 +7,7 @@ import importlib.resources as imp_resources
 from pyspoc import reducers
 
 
-test_file = "C:/Users/Garry/Research Projects/pyss/pyss/run_config/testing.yaml"
+test_file = "C:/Users/Garry/Research Projects/pyss/pyspoc/run_config/testing.yaml"
 
 with open(test_file, "r") as f:
     result = yaml.load(f, yaml.FullLoader)

@@ -7,14 +7,14 @@ import re
 import inspect
 import importlib
 import json
-import pyss.base as pyb
+import pyspoc.base as pyb
 
 from typing import Union, Iterable, Generator, cast
 from types import ModuleType
 from runpy import run_path
 from argparse import Namespace
 
-from pyspocbase import Component
+from pyspoc.base import Component
 from pyspoc.statistic import Statistic, ReducedStatistic
 from pyspoc.reducer import Reducer
 
@@ -190,7 +190,7 @@ class Config:
         
         for dir, component_class, archetypes in archetype_triples:
             for archetype in archetypes:
-                module_reference = f"pyss.{dir}.{archetype}"
+                module_reference = f"pyspoc.{dir}.{archetype}"
                 module = cls.__get_module(module_reference)
                 instance.__cached_modules[module_reference] = module
 
@@ -284,7 +284,7 @@ class Config:
         Arguments:
             module_reference (string): A reference to the module containing the Statistic class.
                 The following formats are supported:
-                    - Dot format for internal PySS modules (ie. "pyss.statistics.basic")
+                    - Dot format for internal PySS modules (ie. "pyspoc.statistics.basic")
                     - File path (ie. "/path/to/my/module.py")
             statistic_name (string): Name of the Statistic class.
             statistic_params (dictionary): A dictionary of parameters for instantiating the Statistic object.
@@ -331,7 +331,7 @@ class Config:
         Arguments:
             module_reference (string): A reference to the module containing the ReducedStatistic class.
                 The following formats are supported:
-                    - Dot format for internal PySS modules (ie. "pyss.rstatistics.basic")
+                    - Dot format for internal PySS modules (ie. "pyspoc.rstatistics.basic")
                     - File path (ie. "/path/to/my/module.py")
             reduced_statistic_name (string): Name of the ReducedStatistic class.
             reduced_statistic_params (dictionary): A dictionary of parameters for instantiating the ReducedStatistic object.
@@ -384,7 +384,7 @@ class Config:
         Arguments:
             module_reference (string): A reference to the module containing the Reducer class.
                 The following formats are supported:
-                    - Dot format for internal PySS modules (ie. "pyss.reducers.basic")
+                    - Dot format for internal PySS modules (ie. "pyspoc.reducers.basic")
                     - File path (ie. "/path/to/my/module.py")
             reducer_name (string): Name of the Reducer class.
             reducer_params (dictionary): A dictionary of parameters for instantiating the Reducer object.
