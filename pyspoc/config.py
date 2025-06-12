@@ -635,8 +635,8 @@ class Config:
         pyb.check_type(level_dict,
                        dict,
                        custom_error_msg=f"Configuration contains incorrect format for {level_name} definition.")
-
-        return {module.lower(): component_config for module, component_config in level_dict.items()}
+        # edited -- module.lower() wont work on all OS
+        return {module: component_config for module, component_config in level_dict.items()}
 
     def __build_config_scheme(self, 
                               stats_spec: dict, 
@@ -886,6 +886,7 @@ class Config:
             return
 
         # Load and return module
+        print(module_path)
         module_dict = run_path(module_path, run_name=module_path)
         module = Namespace(**module_dict)
         cls.__cached_modules[module_path] = module
