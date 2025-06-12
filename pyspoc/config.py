@@ -912,11 +912,13 @@ class Config:
             if component_class:
                 return component_class
 
-        # Otherwise check the module directory.
+        # Otherwise check the module directory. -> will only have it by class name not component name - TODO this needs a fix
         is_component_exists = component_name in module.__dir__()
 
         # Skip if not present.
         if not is_component_exists:
+            # print(module.__dir__())
+            # print(component_name)
             print(f"  {cls.__CROSS_CHAR} {component_type_name} {component_name} could not be found. Skipping.")
             return
 
