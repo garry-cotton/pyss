@@ -15,6 +15,8 @@ jupyter lab
 conda env update -f environment.yml
 pip install -e . --upgrade
 
+- if using vscode, install the kernel in a non-vscode terminal to avoid errors and clashes with snap
+
 ### steps to begin dev
 - activate conda env
 - install library in editable mode using pip
@@ -29,3 +31,7 @@ Step 5: Iterative development
 
 * **Conda environment** manages most dependencies (like numpy, torch, scikit-learn).
 * `pip install -e .` installs your local library + any leftover dependencies pip handles (or new ones you add only in pyproject.toml).
+
+--
+
+some very annoying debugging to get ```import pyspoc``` to work
