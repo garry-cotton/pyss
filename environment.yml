@@ -27,6 +27,7 @@ dependencies:
   - jupyter
   - matplotlib  
   - ipykernel
+  - plotly
   - pip:
     - hyppo
     - cdt==0.5.23

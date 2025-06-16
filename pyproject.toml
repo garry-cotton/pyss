@@ -58,7 +58,8 @@ notebooks = [
   "jupyter",
   "ipykernel",
   "matplotlib",
-  "nb_conda_kernels"
+  "nb_conda_kernels",
+  "plotly"
 ]
 
 # optionally:   "nbstripout"
