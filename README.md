@@ -1,7 +1,7 @@
-# Python Statistics for POint Clouds - PySPoC
+# Under Development! - Python Statistics for POint Clouds - PySPoC
 
 The main role of the library is to provide a framework for easily computing a variety of 
-statistical summaries on datasets. 
+statistical summaries on datasets, building on PySPI. 
 
 A statistical summary comprises two steps, computation of a statistic and a subsequent 
 summarisation step. In many cases, these two steps are independent of one another. For example, 
