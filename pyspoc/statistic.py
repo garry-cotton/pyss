@@ -132,7 +132,7 @@ class DynamicStatistic(Statistic, ABC):
         if dataset.data.ndim == 2:
             return super().calculate(dataset)
 
-        # Else, compute the statistic for each time step.
+        # Else, compute the statistic for each time step. #TODO: THIS NEEDS TO BE EDITED OUT
         data = dataset.data
         results = []
         t = data.shape[2]
