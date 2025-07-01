@@ -3,33 +3,30 @@ import numpy as np
 from pyspoc import ReducedStatistic
 from typing import Union
 
-class MyNewReducedStatistic(ReducedStatistic):
+class GlobalMeanMedianDiff(ReducedStatistic):
 
     def __init__(self):
 
         # Your initialisation code here.
-
+        # self.arg1 = arg1
         # Calling base class initialiser.
         super().__init__()
 
     @property
     def name(self) -> str:
-        return "my_new_reducer_name"
+        return "global_mean_median_diff"
 
     @property
     def identifier(self) -> str:
-        return "my_new_reducer_identifier"
+        return "global_mean_median_diff_id"
 
     @property
     def labels(self) -> list[str]:
-        return ["my_new_reducer_label_1",
-                "my_new_reducer_label_2?????",
-                "my_new_reducer_label_n"]
+        return ["skew"]
 
     def compute(self, data: np.ndarray) -> Union[np.ndarray, float]:
 
         # Calculating your reducer as a reduced numpy array or float scalar.
-        my_reducer = np.max(data)
-
+        my_reducer = np.mean(data) - np.median(data)
         # Returning the result
         return my_reducer
