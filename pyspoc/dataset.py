@@ -10,8 +10,9 @@ import numpy as np
 import pandas as pd
 import os
 
-from scipy.stats import zscore
-from scipy.signal import detrend
+# from scipy.stats import zscore
+# from scipy.signal import detrend
+from sklearn.preprocessing import RobustScaler, StandardScaler
 from typing import Iterable, Union
 from time import time
 
@@ -214,12 +215,6 @@ class Dataset:
             return np.genfromtxt(path)
         elif ext == ".csv":
             return np.genfromtxt(path, ",")
-        elif ext == ".ts":
-            from sktime.utils.data_io import load_from_tsfile_to_dataframe
-            from sktime.datatypes._panel._convert import from_nested_to_3d_numpy
-
-            tsdat, _ = load_from_tsfile_to_dataframe(path)
-            return from_nested_to_3d_numpy(tsdat)
         else:
             raise TypeError(f"Unknown filename extension: {ext}")
 
@@ -317,13 +312,28 @@ class Dataset:
 
     @staticmethod
     def __normalise_data(data: np.ndarray) -> np.ndarray:
-        print("Normalising the dataset...\n")
-        data = zscore(data, axis=0, nan_policy="omit", ddof=1)
+        # TODO: FIX / CHOOSE 
+        # print("Normalising the dataset using zscores \n")
+        # data = zscore(data, axis=0, nan_policy="omit", ddof=1)
+        # try:
+        #     data = detrend(data, axis=0)
+        #     return data
+        # except ValueError as err:
+        #     print(f"Could not detrend dataset: {err}")
+
+        # print("Normalising the dataset using RobustScaler \n")
+        # try:
+        #     data = RobustScaler().fit_transform(data)
+        #     return data
+        # except ValueError as err:
+        #     print(f"Error with RobustScaling: {err}")
+
+        print("Normalising the dataset using StandardScaler \n")
         try:
-            data = detrend(data, axis=0)
+            data = StandardScaler().fit_transform(data)
             return data
         except ValueError as err:
-            print(f"Could not detrend dataset: {err}")
+            print(f"Error with RobustScaling: {err}")
 
     @staticmethod
     def __message(message: str):
@@ -442,6 +452,7 @@ class Dataset:
 
     @staticmethod
     def load_data(name: str):
+        # TODO: MODIFY TO PARSE MY SYNTHETIC DATA NPY'S?
         basedir = os.path.join(os.path.dirname(__file__), "dataset")
         if name == "forex":
             filename = "forex.npy"
