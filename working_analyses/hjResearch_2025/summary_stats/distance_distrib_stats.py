@@ -68,7 +68,7 @@ class DistanceDistributionBase(ReducedStatistic, ABC):
         
     # TODO: ADD SCALING FUNCTIONS IF NEEDED
     # TODO: ADD CACHING OF DISTRIBUTION SO THAT IT'S EASIER 
-
+    # TODO: UNIT TEST
 
 class DistanceDistributionBasicSummarize(DistanceDistributionBase):
     name = "Distance from Point - Peaks"
@@ -106,25 +106,33 @@ class DistanceDistributionModesSummarize(DistanceDistributionBase):
     identifier = "dist-point-summ"
     labels = ["scalar", "distance"]
 
-    def __init__(self, metric, point):
+    def __init__(self, metric, point,type='kde'):
         super().__init__(metric=metric, point=point)
+        self.type = type
 
     def compute(self, data: np.ndarray) -> np.ndarray:
 
         dists = self._dist_from_point(data, 'global_mean_centroid')
 
         dists1 = dists.flatten()
-        # print(dists1.shape)
 
-        kde = gaussian_kde(dists1, bw_method='silverman')
-        # print(kde)
+        if self.type == 'kde':
+            kde = gaussian_kde(dists1, bw_method='silverman')
+            xs = np.linspace(min(dists1), max(dists1), 1000)
+            ys = kde(xs)
+            peaks, _ = find_peaks(ys)
+            n_modes = len(peaks)
 
-        xs = np.linspace(min(dists1), max(dists1), 1000)
-        ys = kde(xs)
-        peaks, _ = find_peaks(ys)
-        # print(peaks)
+        elif self.type == 'max_line_intersections':
+            # TODO: implement
+            n_modes = -1.0
 
-        n_modes = len(peaks)
+        # TODO: USE DERIVATIVES AND INFLECTION POINTS?
+        # dy = np.gradient(y, x)        # First derivative
+        # d2y = np.gradient(dy, x)      # Second derivative
+
+        else:
+            raise ValueError()
 
         return np.array(n_modes)
 
