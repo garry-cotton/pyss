@@ -1,0 +1,23 @@
+ReducedStatistics:
+  pyss.rstatistics.test:
+    ReducedCovarianceTest:
+      schemes:
+        empirical:
+          estimator: empirical
+          squared: True
+
+  pyss.rstatistics.pca:
+    PCAVarianceExplainedRatio:
+      schemes:
+        std:
+          components:
+            - 2
+            - 4
+
+    PCAEigenVectors:
+      schemes:
+        std:
+          principal_vectors:
+            - 1
+            - 3
+            
