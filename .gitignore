@@ -12,5 +12,12 @@ readme.html
 venv
 img
 tests
-pyss/statistics/wip
+pyspoc/statistics/wip
 README.md.bak
+
+.env
+*.egg-info/
+*.ipynb_checkpoints/
+.envrc
+
+notes_todos.md

@@ -1,7 +1,7 @@
-# Purpose
+# Under Development! - Python Statistics for POint Clouds - PySPoC
 
 The main role of the library is to provide a framework for easily computing a variety of 
-statistical summaries on datasets. 
+statistical summaries on datasets, building on PySPI. 
 
 A statistical summary comprises two steps, computation of a statistic and a subsequent 
 summarisation step. In many cases, these two steps are independent of one another. For example, 
@@ -31,7 +31,7 @@ building custom configurations is detailed in its own section.
 # Basic Usage
 
 Generation of summary outputs involves a pipeline of three basic components and the desired output. 
-Two of these components are provided by the PySS library, the other by you, the user.
+Two of these components are provided by the PySPoC library, the other by you, the user.
 
 ```mermaid
 graph LR;
@@ -44,9 +44,9 @@ graph LR;
 ```
 
 - **Data**: User provided. Data must be provided as a *numpy array* or *pandas DataFrame*.
-- **Config**: A PySS *Config* object. This configuration may be pre-defined, tweaked in code, 
+- **Config**: A PySPoC *Config* object. This configuration may be pre-defined, tweaked in code, 
   written from scratch or constructed in code by the user.
-- **Calculator**: A PySS *Calculator* object. Responsible for executing the provided *Config* 
+- **Calculator**: A PySPoC *Calculator* object. Responsible for executing the provided *Config* 
   against the user provided *Data*.
 - **Results**: A *pandas DataFrame* of statistical results. Each row provides results for a 
   single dataset, each column a statistical summary.
@@ -67,7 +67,7 @@ As an example, the following code will produce results using the *fast* configur
 *my_dataset* provided by the user, stored in the *results* variable:
 
 ```python
-from pyss import Calculator, Config
+from pyspoc import Calculator, Config
 
 my_dataset = ...
 cfg = Config.from_internal("fast")
@@ -91,7 +91,7 @@ The following code snippet uses a YAML configuration file with the following det
 - **Name:** "new_config"
 
 ```python
-from pyss import Calculator, Config
+from pyspoc import Calculator, Config
 
 my_dataset = ...
 my_yaml_file_path = "C:/configs/my_yaml_config.yaml"
@@ -109,7 +109,7 @@ The following code snippet uses a JSON configuration file with the following det
 - **Name:** "new_config"
 
 ```python
-from pyss import Calculator, Config
+from pyspoc import Calculator, Config
 
 my_dataset = ...
 my_json_file_path = "C:/configs/my_json_config.json"
@@ -127,7 +127,7 @@ Finally, a Python dictionary can be provided instead with the following details:
 - **Name:** "new_config"
 
 ```python
-from pyss import Calculator, Config
+from pyspoc import Calculator, Config
 
 my_dataset = ...
 my_config_dict = {
@@ -141,10 +141,10 @@ calc.compute(cfg)
 results = calc.results
 ```
 
-# PySS Overview
+# PySPoC Overview
 
-We provide an overview of the main objects that the PySS framework provides for computing
-statistics. This will provide high level information required to understand how PySS functions
+We provide an overview of the main objects that the PySPoC framework provides for computing
+statistics. This will provide high level information required to understand how PySPoC functions
 internally.
 
 
@@ -152,7 +152,7 @@ internally.
 
 ## Pipeline Objects
 
-We now document the **_PySS_** objects that form the pipeline users will typically be exposed to.
+We now document the **_PySPoC_** objects that form the pipeline users will typically be exposed to.
 
 
 ## Data
@@ -178,7 +178,7 @@ AND
 
 If column headers exist within the provided object, these will be utilised in the pipeline.
 
-Once provided to the framework, **_Pyss_** wraps the data in an internal *Dataset* object which 
+Once provided to the framework, **_PySPoC_** wraps the data in an internal *Dataset* object which 
 performs various checks, cleansing operations and transformations required for further 
 processing by the *Calculator* object. The functionality of the *Dataset* object is explored 
 below in its own section.
@@ -193,7 +193,7 @@ graph LR;
 	Calculator-->Result;
 ```
 
-The *Config* object is an abstraction of a pyss configuration. It allows the PySS framework to 
+The *Config* object is an abstraction of a pyspoc configuration. It allows the PySPoC framework to 
 keep track of active configurations and apply efficiencies where possible. 
 
 ### Contract
@@ -208,7 +208,7 @@ Please see the *Additional Notes* section for more information on these requirem
 ### Components
 
 Configurations and the *Config* object are built up using elements called *Components*. The 
-*Component* is a building block for a valid PySS configuration and an abstract object within
+*Component* is a building block for a valid PySPoC configuration and an abstract object within
 the framework. The user will rarely interact with the *Component* object directly, however it is
 integral to the formation of a *ComponentPipeline* that generates statistical outputs.
 
@@ -277,7 +277,7 @@ Moreover, the *Config* object provides three main services to the user:
 2. A means of building or modifying configurations in code.
 3. Export functionality that allows for creating YAML or JSON configuration files.
 
-> More discussion on the features supported by PySS configurations, in addition to the 
+> More discussion on the features supported by PySPoC configurations, in addition to the 
 functionality of the *Config* and *Component* objects, are discussed in the 
 [Advanced Concepts](#advanced-user-concepts) section.
 
@@ -291,7 +291,7 @@ graph LR;
 	Calculator-->Result;
 ```
 
-The *Calculator* is the main engine of Pyss. It is responsible for applying the supplied 
+The *Calculator* is the main engine of PySPoC. It is responsible for applying the supplied 
 *Config* to the user provided *Data*, providing the required statistical summaries as output.
 
 ### Contract
@@ -302,8 +302,8 @@ AND
 
 ### Additional Notes
 
-Contrary to the object name, the *Calculator* is an executive function within the Pyss framework.
-It manages and organises connected elements of the *Pyss Pipeline* by executing the following 
+Contrary to the object name, the *Calculator* is an executive function within the PySPoC framework.
+It manages and organises connected elements of the *PySPoC Pipeline* by executing the following 
 tasks:
 1. Serialises the provided *Config* into a procedure. 
 2. Delegates statistical calculations to the relevant *Components*. 
@@ -441,7 +441,7 @@ square matrix, many of these methods will be based on linear algebra concepts.
 
 As such *ReducedStatistics*, the output must be smaller than the original input both in terms of 
 dimension and data quantity. If a *Reducer* returns a matrix or tensor of high order, the result 
-is flattened by **_PySS_** before being returned to the user.
+is flattened by **_PySPoC_** before being returned to the user.
 
 # Advanced User Concepts
 
@@ -483,7 +483,7 @@ type.
 A reference to the Python module containing the *Component*.
 
 - Internal modules are referenced by the standard Python "dot" convention (ie.
-  pyss.statistics.basic).
+  pyspoc.statistics.basic).
 - External modules are referenced by the full path to the module file (ie. C:\\My Modules\\My
   Components.py).
 
@@ -491,8 +491,8 @@ A reference to the Python module containing the *Component*.
 
 Indicates the name of the *Component*.
 
-> A list of available Statistics, Reducers and ReducedStatistics can be found in the [PySS
-Components](#pyss-components) section.
+> A list of available Statistics, Reducers and ReducedStatistics can be found in the [PySPoC
+Components](#pyspoc-components) section.
 
 #### Schemes
 
@@ -778,7 +778,7 @@ First, we demonstrate construction by reference:
 
 ```python
 
-from pyss import Config
+from pyspoc import Config
 
 my_cfg = Config("my_cfg")
 my_cfg.add_statistic_by_name(module_reference = "statistic_module_1",
@@ -851,7 +851,7 @@ Next, we instead provide the objects directly:
 
 ```python
 
-from pyss import Config
+from pyspoc import Config
 from statistic_module_1 import Statistic_1, Statistic_2, ...
 from statistic_module_2 import Statistic_m, ...
 .
@@ -931,7 +931,7 @@ parameterisation schemes in their configurations. Examples include:
   produce an example on user provided data or generate a random input dataset, providing both the 
   input and output for inspection and comparison. 
 
-> For information on these methods, please see [PySS Components](#pyss-components).
+> For information on these methods, please see [PySPoC Components](#pyspoc-components).
 
 ### Example
 
@@ -982,7 +982,7 @@ Below we show how to construct this configuration in different formats.
 
 ```yaml
 Statistics:
-	pyss.statistics.basic:
+	pyspoc.statistics.basic:
 		Covariance:
 			schemes:
 				empirical:
@@ -992,13 +992,13 @@ Statistics:
 				elliptic-sq:
 					squared: True
 					
-	pyss.statistics.distance:
+	pyspoc.statistics.distance:
 		PairwiseDistance:
 			schemes:
 				euclidean:
 					metric: euclidean
 	
-	pyss.statistics.causal:
+	pyspoc.statistics.causal:
 		InformationGeometricConditionalIndependence:
 			schemes:
 				observation-wise:
@@ -1006,7 +1006,7 @@ Statistics:
 				variate-wise:
 					dim: p
                     
-    pyss.rstatistics.basic:
+    pyspoc.rstatistics.basic:
         PCAVarianceExplained:
             schemes:
                 first-two:
@@ -1020,34 +1020,34 @@ Statistics:
                         - 1
                         - 2
                         - 3
-    pyss.rstatistics.model_fits:
+    pyspoc.rstatistics.model_fits:
         GaussianFit:
           schemes:
               main:
 
 Reducers:
-	pyss.reducers.basic:
+	pyspoc.reducers.basic:
 		Determinant:
 			Statistics:
-				- ¬pyss.statistics.causal.InformationGeometricConditionalIndependence
+				- ¬pyspoc.statistics.causal.InformationGeometricConditionalIndependence
 			schemes:
 				scaled_det:
 					scaled: True	
 		
 		Moment:
 			Statistics:
-				- pyss.statistics.basic.Covariance.elliptic-sq
-				- pyss.statistics.causal.InformationGeometricConditionalIndependence.variate-wise
+				- pyspoc.statistics.basic.Covariance.elliptic-sq
+				- pyspoc.statistics.causal.InformationGeometricConditionalIndependence.variate-wise
 			schemes:
 				two-four:
 					moments:						
 						- 2
 						- 4					
 				
-	pyss.reducers.norms:
+	pyspoc.reducers.norms:
 		SchattenNorm:
 			Statistics:
-				- pyss.statistics.basic.*
+				- pyspoc.statistics.basic.*
 			schemes:
 				2-norm:
 					p: 2			
@@ -1059,7 +1059,7 @@ Reducers:
 ```json
 {
 	"Statistics": {
-		"pyss.statistics.basic": {
+		"pyspoc.statistics.basic": {
 			"Covariance": {
 				"schemes": {
 					"empirical": "estimator"
@@ -1076,7 +1076,7 @@ Reducers:
 				}
 			}
 		},
-		"pyss.statistics.distance": {
+		"pyspoc.statistics.distance": {
 			"PairwiseDistance": {
 				"schemes": {
 					"euclidean": {
@@ -1085,7 +1085,7 @@ Reducers:
 				}
 			}
 		},
-		"pyss.statistics.causal": {
+		"pyspoc.statistics.causal": {
 			"InformationGeometricConditionalIndepedence": {
 				"schemes": {
 					"observation-wise": {
@@ -1097,7 +1097,7 @@ Reducers:
 				}
 			}
 		},
-        "pyss.rstatistics.basic": {
+        "pyspoc.rstatistics.basic": {
             "PCAVarianceExplained": {
                 "schemes": {
                     "first_two": {
@@ -1113,7 +1113,7 @@ Reducers:
                 }
             }
         },
-        "pyss.rstatistics.model_fits": {
+        "pyspoc.rstatistics.model_fits": {
             "GaussianFit": {
                 "schemes": {
                     "base": null
@@ -1122,10 +1122,10 @@ Reducers:
         }
 	},
 	"Reducers": {
-		"pyss.reducers.basic": {
+		"pyspoc.reducers.basic": {
 			"Determinant": {
 				"Statistics": [
-					"¬pyss.statistics.causal.InformationGeometricConditionalIndependence"
+					"¬pyspoc.statistics.causal.InformationGeometricConditionalIndependence"
 				],
 				"schemes": {
 					"scaled_det": {
@@ -1135,8 +1135,8 @@ Reducers:
 			},
 			"Moment": {
 				"Statistics": [
-					"pyss.statistics.basic.EllipticEnvelope.sq",
-					"pyss.statistics.causal.InformationGeometricConditionalIndependence.variate-wise"
+					"pyspoc.statistics.basic.EllipticEnvelope.sq",
+					"pyspoc.statistics.causal.InformationGeometricConditionalIndependence.variate-wise"
 				],
 				"schemes": {
 					"first_three": {
@@ -1145,10 +1145,10 @@ Reducers:
 				}
 			}
 		},
-		"pyss.reducers.norms": {
+		"pyspoc.reducers.norms": {
 			"SchattenNorm": {
 				"Statistics": [
-					"pyss.statistics.basic.*"
+					"pyspoc.statistics.basic.*"
 				],
 				"schemes": {
 					"2-norm": {
@@ -1165,15 +1165,15 @@ Reducers:
 
 ```python
 
-from pyss import Config
-from pyss.statistics.basic import Covariance
-from pyss.statistics.distance import PairwiseDistance
-from pyss.statistics.causal import InformationGeometricConditionalIndependence
-from pyss.rstatistics.basic import PCAVarianceExplained, PCAEigenVectors
-from pyss.rstatistics.model_fits import GaussianFit
+from pyspoc import Config
+from pyspoc.statistics.basic import Covariance
+from pyspoc.statistics.distance import PairwiseDistance
+from pyspoc.statistics.causal import InformationGeometricConditionalIndependence
+from pyspoc.rstatistics.basic import PCAVarianceExplained, PCAEigenVectors
+from pyspoc.rstatistics.model_fits import GaussianFit
 
-from pyss.reducers.basic import Determinant, Moment
-from pyss.reducers.norms import SchattenNorm
+from pyspoc.reducers.basic import Determinant, Moment
+from pyspoc.reducers.norms import SchattenNorm
 
 # Instantiate new config.
 my_cfg = Config("my_cfg")
@@ -1215,16 +1215,16 @@ sch_norm = SchattenNorm(p = 2)
 # Gather with filters.
 my_reducers = {
     "scaled_det" : (
-        scaled_det, ["¬pyss.statistics.causal.InformationGeometricConditionIndependence"]
+        scaled_det, ["¬pyspoc.statistics.causal.InformationGeometricConditionIndependence"]
     ),
     "two-four": (
         moments, [
-            "pyss.statistics.basic.Covariance.elliptic-sq",
-            "pyss.statistics.causal.InformationGeometricConditionalIndependence.variate-wise"
+            "pyspoc.statistics.basic.Covariance.elliptic-sq",
+            "pyspoc.statistics.causal.InformationGeometricConditionalIndependence.variate-wise"
         ]
     ),
     "2-norm": (
-        sch_norm, ["pyss.statistics.basic.*"]
+        sch_norm, ["pyspoc.statistics.basic.*"]
     )
 }
 
@@ -1238,7 +1238,7 @@ for scheme, reducer_pair in my_reducers.items():
 ## Creating New Components
 
 > For further information on the underlying class structure for each of the *Component* classes, 
-please see [PySS Object Reference](#pyss-object-reference).
+please see [PySPoC Object Reference](#pyspoc-object-reference).
 
 Alike the main *Pipeline*, each component obeys a *Contract* which dictates the shape of the 
 data it accepts and returns. Creating new components consists of creating new classes that obey 
@@ -1258,7 +1258,7 @@ You will need to:
 2. Implement the `name` *string* property, which should be unique among all *Statistic* 
    classes within your module.
 3. Implement the `identifier` *string* property, which should be unique across the entire
-   _**PySS**_ framework.
+   _**PySPoC**_ framework.
 4. Implement the `labels` *list(string)* property.
 5. Implement the `compute` method satisfying the following requirements:
    - Input: $n \times p$ *numpy array*.
@@ -1273,7 +1273,7 @@ The following template provides a framework for implementing a new *Statistic*:
 
 ```python
 import numpy as np
-from pyss import Statistic
+from pyspoc import Statistic
 
 
 class MyNewStatistic(Statistic):
@@ -1315,7 +1315,7 @@ class MyNewStatistic(Statistic):
 
 #### Example
 
-We provide an example from an existing PySS *Statistic* - the *PowerEnvelopeCorrelation*:
+We provide an example from an existing PySPoC *Statistic* - the *PowerEnvelopeCorrelation*:
 
 ```python
 # Importing numpy to use for type checking.
@@ -1324,8 +1324,8 @@ import numpy as np
 # MNE-Connectivity open-source Python package (https://mne.tools/mne-connectivity/stable/index.html)
 import mne.connectivity as mnec
 
-# Importing Statistic base class from PySS.
-from pyss import Statistic
+# Importing Statistic base class from pyspoc.
+from pyspoc import Statistic
 
 
 class PowerEnvelopeCorrelation(Statistic):
@@ -1431,7 +1431,7 @@ You will need to:
 3. Implement the `name` *string* property, which should be unique within the module containing
    your class.
 4. Implement the `identifier` *string* property, which should be unique across the entire
-  _**PySS**_ framework.
+  _**PySPoC**_ framework.
 5. Implement the `labels` *list(string)* property.
 6. Implement the `pairwise_compute` method with the following requirements:
    - Input:
@@ -1450,7 +1450,7 @@ The following template provides a framework for implementing a new *PairwiseStat
 ```python
 import numpy as np
 
-from pyss import PairwiseStatistic
+from pyspoc import PairwiseStatistic
 from typing import Union
 
 
@@ -1495,7 +1495,7 @@ class MyNewOrderedPairwiseStatistic(PairwiseStatistic):
 
 #### Example
 
-We provide an example from an existing PySS *Statistic* - the *SpearmanR*:
+We provide an example from an existing PySPoC *Statistic* - the *SpearmanR*:
 
 ```python
 import scipy as sp
@@ -1503,7 +1503,7 @@ import numpy as np
 
 from typing import Union
 
-from pyss import PairwiseStatistic
+from pyspoc import PairwiseStatistic
 
 
 class SpearmanR(PairwiseStatistic):
@@ -1592,7 +1592,7 @@ You will need to:
 2. Implement the `name` *string* property, which should be unique among all *Reducer* classes 
    within your module.
 3. Implement the `identifier` *string* property, which should be unique among all objects across 
-   the entire _**PySS**_ framework.
+   the entire _**PySPoC**_ framework.
 4. Implement the `labels` *list(string)* property.
 5. Implement the `compute` method satisfying the following requirements:
    - Input: 
@@ -1611,7 +1611,7 @@ The following template provides a framework for implementing a new *Reducer*:
 ```python
 import numpy as np
 
-from pyss import Reducer
+from pyspoc import Reducer
 from typing import Union
 
 
@@ -1654,12 +1654,12 @@ class MyNewReducer(Reducer):
 
 #### Example
 
-We provide an example from an existing PySS *Reducer* - the *SchattenNorm*:
+We provide an example from an existing PySPoC *Reducer* - the *SchattenNorm*:
 
 ```python
 import numpy as np
 
-from pyss import Reducer
+from pyspoc import Reducer
 
 
 class SchattenNorm(Reducer):
@@ -1719,7 +1719,7 @@ lines of code. For example, the following code adds a *Statistic* called `MyStat
 *Reducer* called `MyReducer` to an *Config* object with appropriate arguments:
 
 ```python
-from pyss import Config
+from pyspoc import Config
 from my_module import MyStatistic, MyReducer
 
 my_statistic = MyStatistic(*my_statistic_args, **my_statistic_kwargs)
@@ -1742,16 +1742,16 @@ The *Component* will now be included in the YAML file output.
 
 **NOTE**: The containing module `my_module` will be referred to by its **full path** in the 
 configuration file. Therefore, changing the location of the module file will break the reference 
-and the PySS framework will be unable to include your *Components* when executing the configuration.
+and the PySPoC framework will be unable to include your *Components* when executing the configuration.
 
 For more details on configurations including their construction, module referencing or file 
 formats, see the [Configurations](#configurations) section.
 
-# PySS Components
+# PySPoC Components
 
 ## Statistics
 
-### pyss.statistics.basic
+### pyspoc.statistics.basic
 
 #### Covariance
 
@@ -1770,27 +1770,27 @@ formats, see the [Configurations](#configurations) section.
 
 #### KendallTau
 
-### pyss.statistics.causal
+### pyspoc.statistics.causal
 
-### pyss.statistics.distance
+### pyspoc.statistics.distance
 
-### pyss.statistics.misc
+### pyspoc.statistics.misc
 
 ## Reducers
 
-### pyss.reducers.basic
+### pyspoc.reducers.basic
 
-### pyss.reducers.norms
+### pyspoc.reducers.norms
 
-### pyss.reducers.graph
+### pyspoc.reducers.graph
 
 ## ReducedStatistics
 
-### pyss.rstatistics.basic
+### pyspoc.rstatistics.basic
 
-### pyss.rstatistics.model_fits
+### pyspoc.rstatistics.model_fits
 
-# PySS Object Reference
+# PySPoC Object Reference
 
 ## Component
 

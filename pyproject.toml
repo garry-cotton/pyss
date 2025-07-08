@@ -2,30 +2,67 @@
 requires      = ["setuptools>=61.0.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
+[tool.setuptools.packages.find]
+include = ["pyspoc*"]
+
 [project]
-name = "pyss"
-version = "1.0.1"
+name = "pyspoc"
+version = "2.0.0"
 authors = [
     { name ="Garry Cotton", email="garry.s.cotton@gmail.com"},
+    { name ="cosmicbhejafry"},    
 ]
+
 description = "Library for generating large volumes of statistical summaries on static datasets."
 readme = "README.md"
-license = {text = "GNU General Public License v3 (GPLv3)"}
+license = "GPL-3.0-or-later"
 requires-python = ">=3.8"
+
+dependencies = [
+  "pytest",
+  "h5py",
+  "scikit-learn",
+  "scipy",
+  "numpy<2.0.0",
+  "pandas",
+  "pyarrow",
+  "fastparquet",
+  "statsmodels",
+  "pyyaml",
+  "tqdm",
+  "hyppo",
+  "jpype1",
+  "dill",
+  "cdt==0.5.23",
+  "oct2py",
+  "seaborn",
+  "future"
+]
+
 classifiers = [
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
-    "Development Status :: 1 - Planning",
-    "Operating System :: POSIX :: Linux",
     "Intended Audience :: Science/Research",
-    "Environment :: Console",
-    "Environment :: Other Environment",
-    "Topic :: Scientific/Engineering :: Physics",
-    "Topic :: Scientific/Engineering :: Bio-Informatics",
-    "Topic :: Scientific/Engineering :: Information Analysis",
-    "Topic :: Scientific/Engineering :: Medical Science Apps.",
 ]
-dynamic = ["dependencies", "optional-dependencies"]
+
+[project.optional-dependencies]
+dev = [
+  "pytest",
+  "black",
+  "mypy",
+  "coverage",
+  "pre-commit"
+]
+
+notebooks = [
+  "jupyter",
+  "ipykernel",
+  "matplotlib",
+  "nb_conda_kernels",
+  "plotly"
+]
+
+# optionally:   "nbstripout"
 
 [project.urls]
-Repository = "https://github.com/garry-cotton/pyss"
+Repository = "https://github.com/cosmicbhejafry/py-spoc/"

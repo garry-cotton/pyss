@@ -1,0 +1,34 @@
+name: pyspoc_env
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - pip
+  - h5py
+  - scikit-learn
+  - scipy
+  - "numpy<2.0.0"
+  - pandas
+  - pyarrow
+  - fastparquet
+  - statsmodels
+  - pyyaml
+  - tqdm
+  - jpype1
+  - dill
+  - oct2py
+  - seaborn
+  - future
+  - pytest
+  - black
+  - mypy
+  - coverage
+  - pre-commit
+  - jupyter
+  - matplotlib  
+  - ipykernel
+  - plotly
+  - pip:
+    - hyppo
+    - cdt==0.5.23
+    - nbstripout

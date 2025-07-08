@@ -1,0 +1,53 @@
+Statistics:
+# Pearson and Spearman correlation statistics
+  pyspoc.statistics.basic:
+    # Covariance
+    Covariance:
+      schemes:
+        cov:
+          estimator: EmpiricalCovariance
+
+    # Spearman's correlation coefficient
+    SpearmanR:
+      #dependencies:
+      #  - java
+      schemes:
+        sq:
+          squared: True
+        standard:
+          squared: False
+
+    # Kendall Tau correlation coefficient
+    KendallTau:
+      schemes:
+        sq:
+          squared: True
+        standard:
+          squared: False
+
+Reducers:
+  pyspoc.reducers.basic:
+    SingularValues:
+      Statistics:
+        - pyspoc.statistics.basic.Covariance.cov
+      schemes:
+        three:
+          num_values: 3
+
+        two:
+          num_values: 2
+
+    Determinant:
+      Statistics:
+        - pyspoc.statistics.basic.SpearmanR.*
+      schemes:
+        scaled:
+          scaled: True
+
+        non-scaled:
+          scaled: False
+
+    Blah:
+      schemes:
+        yes:
+          hehe: True
