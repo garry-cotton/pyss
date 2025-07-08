@@ -41,6 +41,9 @@ class Statistic(Component, ABC):
 
     def calculate(self, dataset: Dataset) -> np.ndarray:
 
+        # temporarily uncache results, TODO: fix caching mechanisms        
+        self.uncache(dataset)
+
         # Get result from class cache if present.
         dataset_results = self.__cached_results.get(dataset)
 
@@ -130,6 +133,9 @@ class DynamicStatistic(Statistic, ABC):
 
         # If data is static n x p then just return a static statistic with m x m shape.
         if dataset.data.ndim == 2:
+
+            # temporarily uncache results, TODO: fix caching mechanisms        
+            self.uncache(dataset)
             return super().calculate(dataset)
 
         # Else, compute the statistic for each time step. #TODO: THIS NEEDS TO BE EDITED OUT
@@ -247,5 +253,8 @@ class ReducedStatistic(Statistic, ABC):
     """
 
     def calculate(self, dataset: Dataset) -> np.ndarray:
+        # temporarily uncache results, TODO: fix caching mechanisms        
+        self.uncache(dataset)
+
         result = super().calculate(dataset)
         return result.flatten()

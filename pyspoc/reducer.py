@@ -23,6 +23,9 @@ class Reducer(Component, ABC):
     def calculate(self,
                   statistic: Statistic) -> np.ndarray:
 
+        # temporarily uncache results, TODO: fix caching mechanisms        
+        self.uncache(statistic)
+
         statistic_results = self.__cached_results.get(statistic)
 
         if statistic_results is not None:

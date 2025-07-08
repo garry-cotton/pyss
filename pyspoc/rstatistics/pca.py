@@ -29,16 +29,22 @@ class PCABase(ReducedStatistic, ABC):
             self.__cached_pca = cached_pca
 
         result = super().calculate(dataset)
-        self.__cached_pcas[dataset] = (self.__cached_pca, self.__n_components)
+
+        # TEMPORARILY DISABLE CACHING, TODO: cache fix
+        # self.__cached_pcas[dataset] = (self.__cached_pca, self.__n_components)
+        self.__cached_pcas[dataset] = (None, 0)
+
         return result
     
     def _get_pca(self, data: np.ndarray) -> PCA:
-        if self.__cached_pca is not None:
-            return self.__cached_pca
+
+        # TEMPORARILY DISABLE CACHING, TODO: cache fix
+        # if self.__cached_pca is not None:
+        #     return self.__cached_pca
         
         pca = PCA(n_components=self.__n_components)
         pca.fit(data)
-        self.__cached_pca = pca
+        # self.__cached_pca = pca
         return pca
 
 class PCAVarianceExplainedRatio(PCABase):
